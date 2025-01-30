@@ -4,45 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Directory</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --link-bg: #333;
+            --link-text: #dcdcaa;
+            --hover-bg: #444;
+            --hover-text: #ffffff;
+            --header-color: #61dafb;
+        }
+
+        .light-mode {
+            --bg-color: #ffffff;
+            --text-color: #222;
+            --link-bg: #f4f4f4;
+            --link-text: #007acc;
+            --hover-bg: #ddd;
+            --hover-text: #000;
+            --header-color: #007acc;
+        }
+
         body {
             font-family: "Consolas", "Courier New", monospace;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             padding: 20px;
+            transition: background 0.6s ease-in-out, color 0.6s ease-in-out;
         }
+
         h1 {
-            color: #61dafb;
+            color: var(--header-color);
         }
+
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         li {
             margin: 10px 0;
         }
+
         a {
             text-decoration: none;
-            color: #dcdcaa;
+            color: var(--link-text);
             font-size: 18px;
             display: block;
             padding: 5px 10px;
-            background-color: #333;
+            background-color: var(--link-bg);
             border-radius: 5px;
-            transition: background 0.3s;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s ease-in-out;
         }
+
+        /* 🔥 Glowing Effect on Hover */
         a:hover {
-            background-color: #444;
-            color: #ffffff;
+            background-color: var(--hover-bg);
+            color: var(--hover-text);
+            box-shadow: 0 0 10px var(--link-text);
+        }
+
+        /* 🌞🌙 Toggle Button */
+        #toggleButton {
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: var(--link-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.3s, color 0.3s, transform 0.1s ease-in-out;
+        }
+
+        /* 👆 Click Effect */
+        #toggleButton:active {
+            transform: scale(0.95);
+        }
+
+        /* 🌞 Rotate Sun/Moon Icon */
+        #toggleButton i {
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .light-mode #toggleButton i {
+            transform: rotate(180deg);
         }
     </style>
 </head>
 <body>
 
+    <button id="toggleButton"><i class="fas fa-moon"></i> Toggle Light/Dark Mode</button>
+
     <h1>Directory</h1>
     <ul>
         <li><a href="https://graptor52.github.io/CCOS/" target="_blank">CCOS Webmap</a></li>
     </ul>
+
+    <script>
+        const toggleButton = document.getElementById("toggleButton");
+        const body = document.body;
+        const icon = toggleButton.querySelector("i");
+
+        // Check for saved theme preference
+        if (localStorage.getItem("theme") === "light") {
+            body.classList.add("light-mode");
+            icon.classList.replace("fa-moon", "fa-sun");
+            toggleButton.innerHTML = '<i class="fas fa-sun"></i> Switch to Dark Mode';
+        }
+
+        toggleButton.addEventListener("click", () => {
+            body.classList.toggle("light-mode");
+
+            if (body.classList.contains("light-mode")) {
+                localStorage.setItem("theme", "light");
+                icon.classList.replace("fa-moon", "fa-sun");
+                toggleButton.innerHTML = '<i class="fas fa-sun"></i> Switch to Dark Mode';
+            } else {
+                localStorage.setItem("theme", "dark");
+                icon.classList.replace("fa-sun", "fa-moon");
+                toggleButton.innerHTML = '<i class="fas fa-moon"></i> Switch to Light Mode';
+            }
+        });
+    </script>
 
 </body>
 </html>
