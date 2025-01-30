@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
         <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
         html, body, #map {
             width: 100%;
@@ -37,12 +38,28 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
         <script src="data/SLOCountyBoundary_2.js"></script>
         <script src="data/OperationalCommercialCannabisSites_3.js"></script>
         <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
         var map = L.map('map', {
             zoomControl:false, maxZoom:20, minZoom:9
-        }).fitBounds([[34.93429585291115,-121.40699841726992],[35.85954448357537,-119.25141632912946]]);
+        })
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -103,13 +120,38 @@
             position: 'topleft'
         }).addTo(map);
         L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'feet',
+            secondaryLengthUnit: 'miles',
+            primaryAreaUnit: 'sqfeet',
+            secondaryAreaUnit: 'sqmiles'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
         var bounds_group = new L.featureGroup([]);
         function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
         }
-        map.createPane('pane_StandardMap_0');
-        map.getPane('pane_StandardMap_0').style.zIndex = 400;
-        var layer_StandardMap_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            pane: 'pane_StandardMap_0',
+        map.createPane('pane_TopographicMap_0');
+        map.getPane('pane_TopographicMap_0').style.zIndex = 400;
+        var layer_TopographicMap_0 = L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_TopographicMap_0',
+            opacity: 1.0,
+            attribution: '<a href="https://opentopomap.org/about#datenstand">OpenTopoMap (CC-BY-SA)</a>',
+            minZoom: 9,
+            maxZoom: 20,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_TopographicMap_0;
+        map.createPane('pane_StandardMap_1');
+        map.getPane('pane_StandardMap_1').style.zIndex = 401;
+        var layer_StandardMap_1 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_StandardMap_1',
             opacity: 1.0,
             attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
             minZoom: 9,
@@ -117,21 +159,19 @@
             minNativeZoom: 0,
             maxNativeZoom: 19
         });
-        layer_StandardMap_0;
-        map.addLayer(layer_StandardMap_0);
-        map.createPane('pane_SatelliteImagery_1');
-        map.getPane('pane_SatelliteImagery_1').style.zIndex = 401;
-        var layer_SatelliteImagery_1 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            pane: 'pane_SatelliteImagery_1',
-            opacity: 1.0,
-            attribution: '',
-            minZoom: 9,
-            maxZoom: 20,
-            minNativeZoom: 0,
-            maxNativeZoom: 17
-        });
-        layer_SatelliteImagery_1;
+        layer_StandardMap_1;
+        map.addLayer(layer_StandardMap_1);
         function pop_SLOCountyBoundary_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
             var popupContent = '<table>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
@@ -223,6 +263,16 @@
         bounds_group.addLayer(layer_SLOCountyBoundary_2);
         map.addLayer(layer_SLOCountyBoundary_2);
         function pop_OperationalCommercialCannabisSites_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
             var popupContent = '<table>\
                     <tr>\
                         <th scope="row">Address</th>\
@@ -311,8 +361,8 @@
             {label: '<img src="legend/OperationalCommercialCannabisSites_3.png" /> Operational Commercial Cannabis Sites', layer: layer_OperationalCommercialCannabisSites_3},
             {label: '<img src="legend/SLOCountyBoundary_2.png" /> SLO County Boundary', layer: layer_SLOCountyBoundary_2},]},
         {label: '<b>Map Type</b>', selectAllCheckbox: true, children: [
-            {label: "Satellite Imagery", layer: layer_SatelliteImagery_1, radioGroup: 'bm' },
-            {label: "Standard Map", layer: layer_StandardMap_0, radioGroup: 'bm' },]},]
+            {label: "Standard Map", layer: layer_StandardMap_1, radioGroup: 'bm' },
+            {label: "Topographic Map", layer: layer_TopographicMap_0, radioGroup: 'bm' },]},]
         var lay = L.control.layers.tree(null, overlaysTree,{
             //namedToggle: true,
             //selectorBack: false,
