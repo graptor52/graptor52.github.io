@@ -98,6 +98,25 @@
         .light-mode #toggleButton i {
             transform: rotate(180deg);
         }
+
+        #attribution {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 14px;
+            font-family: "Fira Code", monospace; /* Matches your font */
+        }
+
+        #attribution a {
+            color: #61dafb; /* Choose your custom color */
+            text-decoration: none;
+            transition: color 0.3s ease-in-out;
+        }
+        
+        #attribution a:hover {
+            color: #ffcc00; /* Change color on hover */
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -110,6 +129,10 @@
         <li><a href="https://graptor52.github.io/CCOS/" target="_blank">CCOS Webmap</a></li>
     </ul>
 
+    <footer id="attribution">
+    <a href="https://github.com/graptor52" target="_blank">Nick Burgnon</a>
+    </footer>
+    
     <script>
         const toggleButton = document.getElementById("toggleButton");
         const body = document.body;
