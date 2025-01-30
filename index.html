@@ -75,15 +75,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            background-color: var(--link-bg);
+            color: var(--text-color);
+            border: none;
             border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s ease-in-out;
         }
 
         }
 
         /* 👆 Click Effect */
         #toggleButton:active {
-            transform: scale(0.95);
+            transform: scale(0.9);
         }
 
         /* 🌞 Rotate Sun/Moon Icon */
@@ -98,7 +103,7 @@
 </head>
 <body>
 
-    <button id="toggleButton"><i class="fas fa-moon"></i> Toggle Light/Dark Mode</button>
+    <button id="toggleButton"><i class="fas fa-moon"></i></button>
 
     <h1>Directory</h1>
     <ul>
@@ -114,7 +119,6 @@
         if (localStorage.getItem("theme") === "light") {
             body.classList.add("light-mode");
             icon.classList.replace("fa-moon", "fa-sun");
-            toggleButton.innerHTML = '<i class="fas fa-sun"></i> Switch to Dark Mode';
         }
 
         toggleButton.addEventListener("click", () => {
@@ -123,11 +127,9 @@
             if (body.classList.contains("light-mode")) {
                 localStorage.setItem("theme", "light");
                 icon.classList.replace("fa-moon", "fa-sun");
-                toggleButton.innerHTML = '<i class="fas fa-sun"></i>';
             } else {
                 localStorage.setItem("theme", "dark");
                 icon.classList.replace("fa-sun", "fa-moon");
-                toggleButton.innerHTML = '<i class="fas fa-moon"></i>';
             }
         });
     </script>
