@@ -84,8 +84,6 @@
             transition: background 0.3s, transform 0.1s ease-in-out;
         }
 
-        }
-
         /* 👆 Click Effect */
         #toggleButton:active {
             transform: scale(0.9);
@@ -103,6 +101,7 @@
 </head>
 <body>
 
+    <!-- Remove extra text from the button -->
     <button id="toggleButton"><i class="fas fa-moon"></i></button>
 
     <h1>Directory</h1>
@@ -115,10 +114,12 @@
         const body = document.body;
         const icon = toggleButton.querySelector("i");
 
-        // Check for saved theme preference
+        // 🌙 Default to Dark Mode if no preference is set
         if (localStorage.getItem("theme") === "light") {
             body.classList.add("light-mode");
             icon.classList.replace("fa-moon", "fa-sun");
+        } else {
+            localStorage.setItem("theme", "dark"); // Set default to dark
         }
 
         toggleButton.addEventListener("click", () => {
