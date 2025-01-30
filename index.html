@@ -98,39 +98,64 @@
 </head>
 <body>
 
-    <button id="toggleButton"><i class="fas fa-moon"></i> Toggle Light/Dark Mode</button>
+    <button id="toggleButton"><i class="fas fa-moon"></i></button>
 
-    <h1>Directory</h1>
-    <ul>
-        <li><a href="https://graptor52.github.io/CCOS/" target="_blank">CCOS Webmap</a></li>
-    </ul>
+<style>
+    #toggleButton {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--link-bg);
+        color: var(--text-color);
+        border: none;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.1s ease-in-out;
+    }
 
-    <script>
-        const toggleButton = document.getElementById("toggleButton");
-        const body = document.body;
-        const icon = toggleButton.querySelector("i");
+    #toggleButton:active {
+        transform: scale(0.9);
+    }
 
-        // Check for saved theme preference
-        if (localStorage.getItem("theme") === "light") {
-            body.classList.add("light-mode");
+    #toggleButton i {
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .light-mode #toggleButton i {
+        transform: rotate(180deg);
+    }
+</style>
+
+<script>
+    const toggleButton = document.getElementById("toggleButton");
+    const body = document.body;
+    const icon = toggleButton.querySelector("i");
+
+    // Check for saved theme preference
+    if (localStorage.getItem("theme") === "light") {
+        body.classList.add("light-mode");
+        icon.classList.replace("fa-moon", "fa-sun");
+    }
+
+    toggleButton.addEventListener("click", () => {
+        body.classList.toggle("light-mode");
+
+        if (body.classList.contains("light-mode")) {
+            localStorage.setItem("theme", "light");
             icon.classList.replace("fa-moon", "fa-sun");
-            toggleButton.innerHTML = '<i class="fas fa-sun"></i> Switch to Dark Mode';
+        } else {
+            localStorage.setItem("theme", "dark");
+            icon.classList.replace("fa-sun", "fa-moon");
         }
+    });
+</script>
 
-        toggleButton.addEventListener("click", () => {
-            body.classList.toggle("light-mode");
-
-            if (body.classList.contains("light-mode")) {
-                localStorage.setItem("theme", "light");
-                icon.classList.replace("fa-moon", "fa-sun");
-                toggleButton.innerHTML = '<i class="fas fa-sun"></i> Switch to Dark Mode';
-            } else {
-                localStorage.setItem("theme", "dark");
-                icon.classList.replace("fa-sun", "fa-moon");
-                toggleButton.innerHTML = '<i class="fas fa-moon"></i> Switch to Light Mode';
-            }
-        });
-    </script>
 
 </body>
 </html>
