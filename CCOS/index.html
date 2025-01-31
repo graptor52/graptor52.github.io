@@ -3,10 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="HandheldFriendly" content="True">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <meta name="MobileOptimized" content="320"/>
-        <meta http-equiv="cleartype" content="on">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
@@ -105,7 +102,7 @@
             this._div.innerHTML = '<h2>Operational Commercial Cannabis Sites (January 2025)</h2>';
         };
         title.addTo(map);
-        var abstract = new L.Control({'position':'topright'});
+        var abstract = new L.Control({'position':'bottomleft'});
         abstract.onAdd = function (map) {
             this._div = L.DomUtil.create('div',
             'leaflet-control abstract');
