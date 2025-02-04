@@ -62,7 +62,7 @@
             zoomControl:false, maxZoom:20, minZoom:9
         })
         var hash = new L.Hash(map);
-        map.attributionControl.setPrefix('Map created by Nicholas Burgnon &middot; <a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
         // remove popup's row if "visible-with-data"
         function removeEmptyRowsFromPopupContent(content, feature) {
@@ -102,21 +102,6 @@
             this._div.innerHTML = '<h2>Operational Commercial Cannabis Sites (January 2025)</h2>';
         };
         title.addTo(map);
-        var abstract = new L.Control({'position':'bottomleft'});
-        abstract.onAdd = function (map) {
-            this._div = L.DomUtil.create('div',
-            'leaflet-control abstract');
-            this._div.id = 'abstract'
-
-                abstract.show();
-                return this._div;
-            };
-            abstract.show = function () {
-                this._div.classList.remove("abstract");
-                this._div.classList.add("abstractUncollapsed");
-                this._div.innerHTML = 'Click icons for information';
-        };
-        abstract.addTo(map);
         var zoomControl = L.control.zoom({
             position: 'topleft'
         }).addTo(map);
@@ -278,32 +263,28 @@
             });
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">Address</th>\
-                        <td class="visible-with-data" id="Address">' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="Address"colspan="2"><strong>Address</strong><br />' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">APN(s)</th>\
-                        <td class="visible-with-data" id="APN(s)">' + (feature.properties['APN(s)'] !== null ? autolinker.link(feature.properties['APN(s)'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="APN(s)"colspan="2"><strong>APN(s)</strong><br />' + (feature.properties['APN(s)'] !== null ? autolinker.link(feature.properties['APN(s)'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Business Name</th>\
-                        <td class="visible-with-data" id="Business Name">' + (feature.properties['Business Name'] !== null ? autolinker.link(feature.properties['Business Name'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="Business Name"colspan="2"><strong>Business Name</strong><br />' + (feature.properties['Business Name'] !== null ? autolinker.link(feature.properties['Business Name'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Currently Operational Components of Approval</th>\
-                        <td class="visible-with-data" id="Currently Operational Components of Approval">' + (feature.properties['Currently Operational Components of Approval'] !== null ? autolinker.link(feature.properties['Currently Operational Components of Approval'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="Currently Operational Components of Approval"colspan="2"><strong>Currently Operational Components of Approval</strong><br />' + (feature.properties['Currently Operational Components of Approval'] !== null ? autolinker.link(feature.properties['Currently Operational Components of Approval'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Date approved for operations</th>\
-                        <td class="visible-with-data" id="Date approved for operations">' + (feature.properties['Date approved for operations'] !== null ? autolinker.link(feature.properties['Date approved for operations'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="Date approved for operations"colspan="2"><strong>Date approved for operations</strong><br />' + (feature.properties['Date approved for operations'] !== null ? autolinker.link(feature.properties['Date approved for operations'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">lat</th>\
-                        <td class="visible-with-data" id="lat">' + (feature.properties['lat'] !== null ? autolinker.link(feature.properties['lat'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="lat"colspan="2"><strong>lat</strong><br />' + (feature.properties['lat'] !== null ? autolinker.link(feature.properties['lat'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">long</th>\
-                        <td class="visible-with-data" id="long">' + (feature.properties['long'] !== null ? autolinker.link(feature.properties['long'].toLocaleString()) : '') + '</td>\
+                        <td class="visible-with-data" id="long"colspan="2"><strong>long</strong><br />' + (feature.properties['long'] !== null ? autolinker.link(feature.properties['long'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="doc"colspan="2"><strong>doc</strong><br />' + (feature.properties['doc'] !== null ? autolinker.link(feature.properties['doc'].toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
