@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Mexico City Architecture Trip Map&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html, body { margin: 0; padding: 0; height: 100%; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>#map { height: 100%; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.legend {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: white;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.legend span {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-right: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="map"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const map = L.map('map').setView([19.4326, -99.1332], 12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>maxZoom: 18,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>attribution: '© OpenStreetMap contributors'</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}).addTo(map);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const dayColors = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>1: "red", 2: "blue", 3: "green", 4: "purple",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>5: "orange", 6: "brown", 7: "black"</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const days = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>1: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>2: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>3: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>4: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>5: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>6: L.layerGroup(),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>7: L.layerGroup()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const places = [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:1, name:"Museo Soumaya", coords:[19.4401, -99.2042] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:1, name:"Museo Jumex", coords:[19.4407, -99.2027] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:2, name:"Bosque de Chapultepec", coords:[19.4204, -99.1913] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:2, name:"Museo Tamayo", coords:[19.4260, -99.1929] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:2, name:"Museo de Arte Moderno", coords:[19.4237, -99.1913] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:3, name:"Palacio Nacional", coords:[19.4326, -99.1304] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:3, name:"Torre Latinoamericana", coords:[19.4340, -99.1415] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:4, name:"UNAM Central Library", coords:[19.3326, -99.1860] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:4, name:"Espacio Escultórico UNAM", coords:[19.3044, -99.1893] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:5, name:"Parque La Mexicana", coords:[19.3646, -99.2775] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:5, name:"Interlomas", coords:[19.3868, -99.2696] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:6, name:"Desierto de los Leones", coords:[19.2915, -99.3145] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:7, name:"Conjunto Habitacional Tlatelolco", coords:[19.4552, -99.1407] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:7, name:"Torre Reforma", coords:[19.4284, -99.1743] },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ day:7, name:"BBVA Bancomer Tower", coords:[19.4270, -99.1760] }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>places.forEach(place =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const marker = L.circleMarker(place.coords, {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: dayColors[place.day],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>radius: 8,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>fillOpacity: 0.8</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}).bindPopup(`&lt;b&gt;${place.name}&lt;/b&gt;&lt;br&gt;Day ${place.day}`);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>marker.addTo(days[place.day]);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const overlays = {};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>for (let d in days) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>overlays[`Day ${d}`] = days[d];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>days[d].addTo(map); // show all by default</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>L.control.layers(null, overlays, { collapsed: false }).addTo(map);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const legend = L.control({position: 'bottomright'});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>legend.onAdd = function () {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const div = L.DomUtil.create('div', 'legend');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>div.innerHTML = "&lt;strong&gt;Day Colors&lt;/strong&gt;&lt;br&gt;" +</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Object.entries(dayColors).map(([day, color]) =&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>`&lt;span style="background:${color}"&gt;&lt;/span&gt;Day ${day}`</p>
+<p class="p1"><span class="Apple-converted-space">        </span>).join("&lt;br&gt;");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return div;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>legend.addTo(map);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
