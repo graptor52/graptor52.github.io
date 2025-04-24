@@ -1,23 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CDMX Itinerary Map</title>
+  <title>CDMX Itinerary</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { margin: 0; font-family: sans-serif; }
-    #map { height: 100vh; width: 75%; float: right; }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    #map {
+      flex: 1;
+    }
     #sidebar {
-      width: 25%; height: 100vh; overflow-y: auto; padding: 1rem;
-      background: #f4f4f4; border-right: 1px solid #ccc;
+      width: 300px;
+      overflow-y: auto;
+      padding: 1rem;
+      background: #f4f4f4;
+      border-right: 1px solid #ccc;
     }
-    h2 { margin-top: 0; }
+    h2 {
+      margin-top: 0;
+    }
     .day-button {
-      background: #fff; border: 1px solid #ccc; margin: 0.5rem 0;
-      padding: 0.5rem; cursor: pointer; text-align: left;
+      background: #fff;
+      border: 1px solid #ccc;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
     }
-    .day-button:hover { background: #e0e0e0; }
+    .day-button:hover {
+      background: #e0e0e0;
+    }
+    .day-color {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .day-details {
+      display: none;
+      padding-left: 1rem;
+      font-size: 0.9em;
+      color: #333;
+    }
+    .day-details div {
+      margin-bottom: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -174,9 +209,13 @@
     const dayColors = ["#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0"];
 
     let dayIndex = 0;
+    const dayGroups = [];
+
     for (const [day, places] of Object.entries(itinerary)) {
       const color = dayColors[dayIndex % dayColors.length];
-      const group = L.layerGroup();
+      const group = L.featureGroup();
+      dayGroups.push(group);
+
       places.forEach(place => {
         const marker = L.circleMarker(place.coords, {
           radius: 8,
@@ -191,14 +230,35 @@
           <a href="${place.link}" target="_blank">Open in Maps</a>
         `);
       });
+
       group.addTo(map);
 
       const btn = document.createElement("div");
       btn.className = "day-button";
-      btn.textContent = day;
+
+      const colorIcon = document.createElement("span");
+      colorIcon.className = "day-color";
+      colorIcon.style.backgroundColor = color;
+
+      const text = document.createTextNode(day);
+
+      btn.appendChild(colorIcon);
+      btn.appendChild(text);
+
+      const detail = document.createElement("div");
+      detail.className = "day-details";
+      places.forEach(p => {
+        const el = document.createElement("div");
+        el.innerHTML = `<strong>${p.icon} ${p.name}</strong><br>${p.desc}<br><a href="${p.link}" target="_blank">Open in Maps</a>`;
+        detail.appendChild(el);
+      });
+
+      btn.appendChild(detail);
       btn.onclick = () => {
-        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        setTimeout(() => map.fitBounds(group.getBounds(), { padding: [50, 50] }), 100);
+        detail.style.display = detail.style.display === "block" ? "none" : "block";
       };
+
       document.getElementById("days").appendChild(btn);
 
       dayIndex++;
