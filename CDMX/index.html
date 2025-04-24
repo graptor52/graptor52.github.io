@@ -44,13 +44,28 @@
       margin-left: 1rem;
       font-size: 0.9rem;
     }
+    #showAll {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #showAll:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
+  <button id="showAll">Show All</button>
   <div id="sidebar">
     <h2>CDMX Itinerary</h2>
     <div id="days"></div>
-    <button id="showAll">Show All</button>
   </div>
   <div id="map"></div>
 
@@ -244,7 +259,7 @@
       btn.onclick = () => {
         dayGroups.forEach(g => map.removeLayer(g));
         map.addLayer(group);
-        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        map.fitBounds(group.getBounds(), { padding: [200, 200] });
         document.querySelectorAll('.day-info').forEach(e => e.style.display = 'none');
         dayInfo.style.display = "block";
       };
@@ -255,10 +270,16 @@
       dayIndex++;
     }
 
+    let showAllExpanded = false; // Track the toggle state
+
     document.getElementById("showAll").onclick = () => {
-      dayGroups.forEach(g => map.addLayer(g));
-      map.fitBounds(allGroup.getBounds(), { padding: [50, 50] });
-      document.querySelectorAll('.day-info').forEach(e => e.style.display = 'block');
+      if (showAllExpanded) {
+        document.querySelectorAll('.day-info').forEach(e => e.style.display = 'none');
+      } else {
+        map.fitBounds(allGroup.getBounds(), { padding: [50, 50] });
+        document.querySelectorAll('.day-info').forEach(e => e.style.display = 'block');
+      }
+      showAllExpanded = !showAllExpanded; // Toggle the state
     };
   </script>
 </body>
