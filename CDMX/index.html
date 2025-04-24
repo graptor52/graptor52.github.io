@@ -1,100 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mexico City Architecture Trip Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>CDMX Itinerary Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    #map { height: 100%; }
-    .legend {
-      background: white;
-      padding: 10px;
-      line-height: 1.5;
-      font-size: 14px;
-      border-radius: 5px;
+    body { margin: 0; font-family: sans-serif; }
+    #map { height: 100vh; width: 75%; float: right; }
+    #sidebar {
+      width: 25%; height: 100vh; overflow-y: auto; padding: 1rem;
+      background: #f4f4f4; border-right: 1px solid #ccc;
     }
-    .legend span {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      margin-right: 6px;
+    h2 { margin-top: 0; }
+    .day-button {
+      background: #fff; border: 1px solid #ccc; margin: 0.5rem 0;
+      padding: 0.5rem; cursor: pointer; text-align: left;
     }
+    .day-button:hover { background: #e0e0e0; }
   </style>
 </head>
 <body>
+  <div id="sidebar">
+    <h2>CDMX Itinerary</h2>
+    <div id="days"></div>
+  </div>
   <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const map = L.map('map').setView([19.4326, -99.1332], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '© OpenStreetMap contributors'
+      attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    const dayColors = {
-      1: "red", 2: "blue", 3: "green", 4: "purple",
-      5: "orange", 6: "brown", 7: "black"
+    const itinerary = {
+      "Day 1": [
+        {
+          name: "Lardo",
+          coords: [19.4126, -99.1727],
+          icon: "🍽️",
+          desc: "Dinner spot for night 1, casual and cozy.",
+          link: "https://goo.gl/maps/7Ff5E7X1zjvHHVwz7"
+        },
+        {
+          name: "Panadería Rosetta",
+          coords: [19.4178, -99.1667],
+          icon: "🥐",
+          desc: "Pastries + good intro to Roma vibe.",
+          link: "https://goo.gl/maps/jAqkKMx6WCU3sB5e7"
+        }
+      ],
+      "Day 2": [
+        {
+          name: "Zócalo",
+          coords: [19.4326, -99.1332],
+          icon: "🏛️",
+          desc: "Historic center of Mexico City.",
+          link: "https://goo.gl/maps/mQwhMJzN9gs"
+        },
+        {
+          name: "Palacio de Bellas Artes",
+          coords: [19.4352, -99.1412],
+          icon: "🎭",
+          desc: "Cultural gem with amazing architecture.",
+          link: "https://goo.gl/maps/5DyUoLuorYo"
+        }
+      ]
+      // Add more days here later
     };
 
-    const days = {
-      1: L.layerGroup(),
-      2: L.layerGroup(),
-      3: L.layerGroup(),
-      4: L.layerGroup(),
-      5: L.layerGroup(),
-      6: L.layerGroup(),
-      7: L.layerGroup()
-    };
+    const dayColors = ["#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#46f0f0"];
 
-    const places = [
-      { day:1, name:"Museo Soumaya", coords:[19.4401, -99.2042] },
-      { day:1, name:"Museo Jumex", coords:[19.4407, -99.2027] },
-      { day:2, name:"Bosque de Chapultepec", coords:[19.4204, -99.1913] },
-      { day:2, name:"Museo Tamayo", coords:[19.4260, -99.1929] },
-      { day:2, name:"Museo de Arte Moderno", coords:[19.4237, -99.1913] },
-      { day:3, name:"Palacio Nacional", coords:[19.4326, -99.1304] },
-      { day:3, name:"Torre Latinoamericana", coords:[19.4340, -99.1415] },
-      { day:4, name:"UNAM Central Library", coords:[19.3326, -99.1860] },
-      { day:4, name:"Espacio Escultórico UNAM", coords:[19.3044, -99.1893] },
-      { day:5, name:"Parque La Mexicana", coords:[19.3646, -99.2775] },
-      { day:5, name:"Interlomas", coords:[19.3868, -99.2696] },
-      { day:6, name:"Desierto de los Leones", coords:[19.2915, -99.3145] },
-      { day:7, name:"Conjunto Habitacional Tlatelolco", coords:[19.4552, -99.1407] },
-      { day:7, name:"Torre Reforma", coords:[19.4284, -99.1743] },
-      { day:7, name:"BBVA Bancomer Tower", coords:[19.4270, -99.1760] }
-    ];
+    let dayIndex = 0;
+    for (const [day, places] of Object.entries(itinerary)) {
+      const color = dayColors[dayIndex % dayColors.length];
+      const group = L.layerGroup();
+      places.forEach(place => {
+        const marker = L.circleMarker(place.coords, {
+          radius: 8,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.9
+        }).addTo(group);
 
-    places.forEach(place => {
-      const marker = L.circleMarker(place.coords, {
-        color: dayColors[place.day],
-        radius: 8,
-        fillOpacity: 0.8
-      }).bindPopup(`<b>${place.name}</b><br>Day ${place.day}`);
-      marker.addTo(days[place.day]);
-    });
+        marker.bindPopup(`
+          <strong>${place.icon} ${place.name}</strong><br>
+          ${place.desc}<br>
+          <a href="${place.link}" target="_blank">Open in Maps</a>
+        `);
+      });
+      group.addTo(map);
 
-    const overlays = {};
-    for (let d in days) {
-      overlays[`Day ${d}`] = days[d];
-      days[d].addTo(map); // show all by default
+      const btn = document.createElement("div");
+      btn.className = "day-button";
+      btn.textContent = day;
+      btn.onclick = () => {
+        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+      };
+      document.getElementById("days").appendChild(btn);
+
+      dayIndex++;
     }
-
-    L.control.layers(null, overlays, { collapsed: false }).addTo(map);
-
-    const legend = L.control({position: 'bottomright'});
-    legend.onAdd = function () {
-      const div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = "<strong>Day Colors</strong><br>" +
-        Object.entries(dayColors).map(([day, color]) =>
-          `<span style="background:${color}"></span>Day ${day}`
-        ).join("<br>");
-      return div;
-    };
-    legend.addTo(map);
   </script>
 </body>
 </html>
