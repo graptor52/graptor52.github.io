@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
         <link rel="stylesheet" href="css/leaflet.photon.css">
         <style>
         html, body, #map {
@@ -36,7 +37,8 @@
         <script src="js/labels.js"></script>
         <script src="js/leaflet.wms.js"></script>
         <script src="js/leaflet.photon.js"></script>
-        <script src="data/CalValleyCannabisCode_2.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/CalValleyCannabisCode_mpennonfiltered_2.js"></script>
         <script src="data/SLOCountyBoundary_3.js"></script>
         <script>
         var highlightLayer;
@@ -55,8 +57,8 @@
             }
         }
         var map = L.map('map', {
-            zoomControl:false, maxZoom:20, minZoom:9
-        }).fitBounds([[35.25842235112268,-120.10822852678051],[35.39501864830931,-119.7872652848133]]);
+            zoomControl:false, maxZoom:20, minZoom:12
+        }).fitBounds([[35.24667249574071,-120.06660074303396],[35.37762737259568,-119.758948718913]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -126,14 +128,14 @@
             pane: 'pane_StandardMap_1',
             opacity: 1.0,
             attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
-            minZoom: 9,
+            minZoom: 12,
             maxZoom: 20,
             minNativeZoom: 0,
             maxNativeZoom: 19
         });
         layer_StandardMap_1;
         map.addLayer(layer_StandardMap_1);
-        function pop_CalValleyCannabisCode_2(feature, layer) {
+        function pop_CalValleyCannabisCode_mpennonfiltered_2(feature, layer) {
             layer.on({
                 mouseout: function(e) {
                     for (var i in e.target._eventParents) {
@@ -158,24 +160,8 @@
                         <td class="visible-with-data" id="Case No.">' + (feature.properties['Case No.'] !== null ? autolinker.link(String(feature.properties['Case No.']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Address (approximate)</th>\
-                        <td class="visible-with-data" id="Address (approximate)">' + (feature.properties['Address (approximate)'] !== null ? autolinker.link(String(feature.properties['Address (approximate)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Closed Date</th>\
-                        <td class="visible-with-data" id="Closed Date">' + (feature.properties['Closed Date'] !== null ? autolinker.link(String(feature.properties['Closed Date']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Case Status</th>\
-                        <td class="visible-with-data" id="Case Status">' + (feature.properties['Case Status'] !== null ? autolinker.link(String(feature.properties['Case Status']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Case Description</th>\
-                        <td class="visible-with-data" id="Case Description">' + (feature.properties['Case Description'] !== null ? autolinker.link(String(feature.properties['Case Description']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">(not totally sure what this field is)</th>\
-                        <td class="visible-with-data" id="(not totally sure what this field is)">' + (feature.properties['(not totally sure what this field is)'] !== null ? autolinker.link(String(feature.properties['(not totally sure what this field is)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <th scope="row">Address (a</th>\
+                        <td class="visible-with-data" id="Address (a">' + (feature.properties['Address (a'] !== null ? autolinker.link(String(feature.properties['Address (a']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
                         <th scope="row">APN</th>\
@@ -189,9 +175,9 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        function style_CalValleyCannabisCode_2_0() {
+        function style_CalValleyCannabisCode_mpennonfiltered_2_0() {
             return {
-                pane: 'pane_CalValleyCannabisCode_2',
+                pane: 'pane_CalValleyCannabisCode_mpennonfiltered_2',
                 opacity: 1,
                 color: 'rgba(0,0,0,1.0)',
                 dashArray: '',
@@ -204,20 +190,20 @@
                 interactive: true,
             }
         }
-        map.createPane('pane_CalValleyCannabisCode_2');
-        map.getPane('pane_CalValleyCannabisCode_2').style.zIndex = 402;
-        map.getPane('pane_CalValleyCannabisCode_2').style['mix-blend-mode'] = 'normal';
-        var layer_CalValleyCannabisCode_2 = new L.geoJson(json_CalValleyCannabisCode_2, {
+        map.createPane('pane_CalValleyCannabisCode_mpennonfiltered_2');
+        map.getPane('pane_CalValleyCannabisCode_mpennonfiltered_2').style.zIndex = 402;
+        map.getPane('pane_CalValleyCannabisCode_mpennonfiltered_2').style['mix-blend-mode'] = 'normal';
+        var layer_CalValleyCannabisCode_mpennonfiltered_2 = new L.geoJson(json_CalValleyCannabisCode_mpennonfiltered_2, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_CalValleyCannabisCode_2',
-            layerName: 'layer_CalValleyCannabisCode_2',
-            pane: 'pane_CalValleyCannabisCode_2',
-            onEachFeature: pop_CalValleyCannabisCode_2,
-            style: style_CalValleyCannabisCode_2_0,
+            dataVar: 'json_CalValleyCannabisCode_mpennonfiltered_2',
+            layerName: 'layer_CalValleyCannabisCode_mpennonfiltered_2',
+            pane: 'pane_CalValleyCannabisCode_mpennonfiltered_2',
+            onEachFeature: pop_CalValleyCannabisCode_mpennonfiltered_2,
+            style: style_CalValleyCannabisCode_mpennonfiltered_2_0,
         });
-        bounds_group.addLayer(layer_CalValleyCannabisCode_2);
-        map.addLayer(layer_CalValleyCannabisCode_2);
+        bounds_group.addLayer(layer_CalValleyCannabisCode_mpennonfiltered_2);
+        map.addLayer(layer_CalValleyCannabisCode_mpennonfiltered_2);
         function pop_SLOCountyBoundary_3(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -320,6 +306,16 @@
         bounds_group.addLayer(layer_SLOCountyBoundary_3);
         map.addLayer(layer_SLOCountyBoundary_3);
         setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_CalValleyCannabisCode_mpennonfiltered_2,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: '(not total'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
         </script>
     </body>
 </html>
