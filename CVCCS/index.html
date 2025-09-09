@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
         <link rel="stylesheet" href="css/qgis2web.css">
         <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
         <link rel="stylesheet" href="css/leaflet.photon.css">
         <style>
         html, body, #map {
@@ -36,10 +37,12 @@
         <script src="js/labels.js"></script>
         <script src="js/leaflet.wms.js"></script>
         <script src="js/leaflet.photon.js"></script>
+        <script src="js/leaflet-search.js"></script>
         <script src="data/CV54_2.js"></script>
         <script src="data/CV_Area_3_3.js"></script>
         <script src="data/CV_Area_2_4.js"></script>
         <script src="data/CV_Area_1_5.js"></script>
+        <script src="data/SLOCountyBoundary_6.js"></script>
         <script>
         var highlightLayer;
         function highlightFeature(e) {
@@ -378,8 +381,110 @@
         });
         bounds_group.addLayer(layer_CV_Area_1_5);
         map.addLayer(layer_CV_Area_1_5);
+        function pop_SLOCountyBoundary_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(String(feature.properties['fid']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STATEFP'] !== null ? autolinker.link(String(feature.properties['STATEFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTYFP'] !== null ? autolinker.link(String(feature.properties['COUNTYFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['COUNTYNS'] !== null ? autolinker.link(String(feature.properties['COUNTYNS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['GEOID'] !== null ? autolinker.link(String(feature.properties['GEOID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME'] !== null ? autolinker.link(String(feature.properties['NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAMELSAD'] !== null ? autolinker.link(String(feature.properties['NAMELSAD']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LSAD'] !== null ? autolinker.link(String(feature.properties['LSAD']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CLASSFP'] !== null ? autolinker.link(String(feature.properties['CLASSFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['MTFCC'] !== null ? autolinker.link(String(feature.properties['MTFCC']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CSAFP'] !== null ? autolinker.link(String(feature.properties['CSAFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CBSAFP'] !== null ? autolinker.link(String(feature.properties['CBSAFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['METDIVFP'] !== null ? autolinker.link(String(feature.properties['METDIVFP']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FUNCSTAT'] !== null ? autolinker.link(String(feature.properties['FUNCSTAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ALAND'] !== null ? autolinker.link(String(feature.properties['ALAND']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AWATER'] !== null ? autolinker.link(String(feature.properties['AWATER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLAT'] !== null ? autolinker.link(String(feature.properties['INTPTLAT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['INTPTLON'] !== null ? autolinker.link(String(feature.properties['INTPTLON']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_SLOCountyBoundary_6_0() {
+            return {
+                pane: 'pane_SLOCountyBoundary_6',
+                opacity: 1,
+                color: 'rgba(69,255,239,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_SLOCountyBoundary_6');
+        map.getPane('pane_SLOCountyBoundary_6').style.zIndex = 406;
+        map.getPane('pane_SLOCountyBoundary_6').style['mix-blend-mode'] = 'normal';
+        var layer_SLOCountyBoundary_6 = new L.geoJson(json_SLOCountyBoundary_6, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_SLOCountyBoundary_6',
+            layerName: 'layer_SLOCountyBoundary_6',
+            pane: 'pane_SLOCountyBoundary_6',
+            onEachFeature: pop_SLOCountyBoundary_6,
+            style: style_SLOCountyBoundary_6_0,
+        });
+        bounds_group.addLayer(layer_SLOCountyBoundary_6);
+        map.addLayer(layer_SLOCountyBoundary_6);
         var overlaysTree = [
         {label: '<b>Parcel Groups</b>',  selectAllCheckbox: true, children: [
+            {label: '<img src="legend/SLOCountyBoundary_6.png" /> SLO County Boundary', layer: layer_SLOCountyBoundary_6},
             {label: '<img src="legend/CV_Area_1_5.png" /> CV_Area_1', layer: layer_CV_Area_1_5},
             {label: '<img src="legend/CV_Area_2_4.png" /> CV_Area_2', layer: layer_CV_Area_2_4},
             {label: '<img src="legend/CV_Area_3_3.png" /> CV_Area_3', layer: layer_CV_Area_3_3},
@@ -398,6 +503,16 @@
         });
         lay.addTo(map);
         setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_CV54_2,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'APN'}));
+        if (typeof url === 'undefined') {
+            document.getElementsByClassName('search-button')[0].className += ' fa fa-binoculars';
+        } else {
+            document.getElementsByClassName('search-button')[1].className += ' fa fa-binoculars';
+        }
         </script>
     </body>
 </html>
