@@ -5,30 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Directory</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --text-color: #d4d4d4;
-            --link-bg: #333;
-            --link-text: #dcdcaa;
-            --hover-bg: #444;
+            --bg-color: #555;
+            --text-color: #59bae0;
+            --link-bg: #444;
+            --link-text: #ffffff;
+            --hover-bg: #555;
             --hover-text: #ffffff;
-            --header-color: #61dafb;
+            --header-color: #ffffff;
         }
 
         .light-mode {
             --bg-color: #ffffff;
-            --text-color: #222;
-            --link-bg: #f4f4f4;
-            --link-text: #007acc;
-            --hover-bg: #dddddd;
-            --hover-text: #000;
-            --header-color: #007acc;
+            --text-color: #f1d900;
+            --link-bg: #eee;
+            --link-text: #555;
+            --hover-bg: #fff;
+            --hover-text: #555;
+            --header-color: #555;
         }
 
         body {
-            font-family: "Fira Code", monospace;
+            font-family: "Google Sans Code", monospace;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
             background-color: var(--bg-color);
             color: var(--text-color);
             padding: 20px;
@@ -37,6 +42,10 @@
 
         h1 {
             color: var(--header-color);
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            font-style: normal;
+            font-weight: 500;
         }
 
         ul {
@@ -101,20 +110,20 @@
 
         footer#attribution {
             position: fixed;
-            bottom: 10px;
+            bottom: 20px;
             right: 20px;
-            font-family: "Fira Code", monospace;
+            font-family: "Google Sans Code", monospace;
         }
 
         #attribution a {
-            font-size: 12px !important;
-            color: #00b7ff;
+            font-size: 0.9rem !important;
+            color: #00c53b;
             text-decoration: none;
             transition: color 0.1s ease-in-out;
         }
         
         #attribution a:hover {
-            color: #00f7ff;
+            color: #27e25f;
             text-decoration: underline;
         }
     </style>
@@ -126,13 +135,13 @@
 
     <h1>Directory</h1>
     <ul>
-        <li><a href="https://graptor52.github.io/CCOS/" target="_blank">CCOS Webmap</a></li>
+        <li><a href="https://graptor52.github.io/CCOS/" target="_blank">CCOS Webmap &middot; (non-functional)</a></li>
         <li><a href="https://graptor52.github.io/CDMX/" target="_blank">CDMX Itinerary</a></li>
         <li><a href="https://graptor52.github.io/CVCCS" target="_blank">California Valley Parcels</a></li>
     </ul>
 
     <footer id="attribution">
-    <a href="https://www.linkedin.com/in/nburgnon/" target="_blank">Nick Burgnon</a>
+    <a href="https://www.linkedin.com/in/nburgnon/" target="_blank">Nicholas Burgnon</a>
     </footer>
     
     <script>
