@@ -754,30 +754,3 @@ function fnc__specialcol_(values, context) {
 function fnc_project_color(values, context) {
     return false;
 };
-
-
-
-function exp_AllInspectedParcels_1rule0_eval_expression(context) {
-    // "Lien Recorded (Y/N)" = 'Y'
-
-    var feature = context.feature;
-    
-    if (feature.properties) {
-        return (feature.properties['Lien Recorded (Y/N)']  == 'Y');
-    } else {
-        return (feature['Lien Recorded (Y/N)']  == 'Y');
-    }
-}
-
-
-function exp_AllInspectedParcels_1rule1_eval_expression(context) {
-    // "Lien Recorded (Y/N)" = 'N'
-
-    var feature = context.feature;
-    
-    if (feature.properties) {
-        return (feature.properties['Lien Recorded (Y/N)']  == 'N');
-    } else {
-        return (feature['Lien Recorded (Y/N)']  == 'N');
-    }
-}

@@ -36,7 +36,7 @@
         <script src="js/labels.js"></script>
         <script src="js/leaflet.photon.js"></script>
         <script src="data/AllInspectedParcels_1.js"></script>
-        <script src="data/EmptyLots_2.js"></script>
+        <script src="data/RemainingCannabisInfrastructure_2.js"></script>
         <script>
         var highlightLayer;
         function highlightFeature(e) {
@@ -55,7 +55,7 @@
         }
         var map = L.map('map', {
             zoomControl:false, maxZoom:20, minZoom:13
-        }).fitBounds([[35.23666899608921,-120.08736873298137],[35.36764005370953,-119.77971670886042]]);
+        }).fitBounds([[35.23421106101418,-120.09313735982137],[35.37009353250988,-119.77394838479586]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -146,16 +146,19 @@
             });
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">Case Number</th>\
-                        <td class="visible-with-data" id="Case Number">' + (feature.properties['Case Number'] !== null ? autolinker.link(String(feature.properties['Case Number']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
                         <th scope="row">APN</th>\
                         <td class="visible-with-data" id="APN">' + (feature.properties['APN'] !== null ? autolinker.link(String(feature.properties['APN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Lien Recorded (Y/N)</th>\
-                        <td class="visible-with-data" id="Lien Recorded (Y/N)">' + (feature.properties['Lien Recorded (Y/N)'] !== null ? autolinker.link(String(feature.properties['Lien Recorded (Y/N)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <th scope="row">Lien Filed</th>\
+                        <td class="visible-with-data" id="Lien Filed">' + (feature.properties['Lien Filed'] !== null ? autolinker.link(String(feature.properties['Lien Filed']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Cannabis Infrastructure Onsite</th>\
+                        <td class="visible-with-data" id="Cannabis Infrastructure Onsite">' + (feature.properties['Cannabis Infrastructure Onsite'] !== null ? autolinker.link(String(feature.properties['Cannabis Infrastructure Onsite']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="Lot Condition" colspan="2"><strong>Lot Condition</strong><br />' + (feature.properties['Lot Condition'] !== null ? autolinker.link(String(feature.properties['Lot Condition']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -164,14 +167,9 @@
 			});
 			layer.bindPopup(content, { maxHeight: 400 });
         }
-        function style_AllInspectedParcels_1_0(feature) {
-            var context = {
-                feature: feature,
-                variables: {}
-            };
-            // Start of if blocks and style check logic
-            if (exp_AllInspectedParcels_1rule0_eval_expression(context)) {
-                  return {
+
+        function style_AllInspectedParcels_1_0() {
+            return {
                 pane: 'pane_AllInspectedParcels_1',
                 opacity: 1,
                 color: 'rgba(35,35,35,1.0)',
@@ -183,25 +181,6 @@
                 fillOpacity: 1,
                 fillColor: 'rgba(255,0,0,1.0)',
                 interactive: true,
-            };
-                }
-                else if (exp_AllInspectedParcels_1rule1_eval_expression(context)) {
-                  return {
-                pane: 'pane_AllInspectedParcels_1',
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1.0, 
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(0,132,255,1.0)',
-                interactive: true,
-            };
-                }
-            else {
-                return {fill: false, stroke: false};
             }
         }
         map.createPane('pane_AllInspectedParcels_1');
@@ -218,7 +197,7 @@
         });
         bounds_group.addLayer(layer_AllInspectedParcels_1);
         map.addLayer(layer_AllInspectedParcels_1);
-        function pop_EmptyLots_2(feature, layer) {
+        function pop_RemainingCannabisInfrastructure_2(feature, layer) {
             layer.on({
                 mouseout: function(e) {
                     for (var i in e.target._eventParents) {
@@ -231,20 +210,19 @@
             });
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">Case Number</th>\
-                        <td class="visible-with-data" id="Case Number">' + (feature.properties['Case Number'] !== null ? autolinker.link(String(feature.properties['Case Number']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
                         <th scope="row">APN</th>\
                         <td class="visible-with-data" id="APN">' + (feature.properties['APN'] !== null ? autolinker.link(String(feature.properties['APN']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Lien Recorded (Y/N)</th>\
-                        <td class="visible-with-data" id="Lien Recorded (Y/N)">' + (feature.properties['Lien Recorded (Y/N)'] !== null ? autolinker.link(String(feature.properties['Lien Recorded (Y/N)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <th scope="row">Lien Filed</th>\
+                        <td class="visible-with-data" id="Lien Filed">' + (feature.properties['Lien Filed'] !== null ? autolinker.link(String(feature.properties['Lien Filed']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">Empty Lot (Y/N)</th>\
-                        <td class="visible-with-data" id="Empty Lot (Y/N)">' + (feature.properties['Empty Lot (Y/N)'] !== null ? autolinker.link(String(feature.properties['Empty Lot (Y/N)']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <th scope="row">Cannabis Infrastructure Onsite</th>\
+                        <td class="visible-with-data" id="Cannabis Infrastructure Onsite">' + (feature.properties['Cannabis Infrastructure Onsite'] !== null ? autolinker.link(String(feature.properties['Cannabis Infrastructure Onsite']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td class="visible-with-data" id="Lot Condition" colspan="2"><strong>Lot Condition</strong><br />' + (feature.properties['Lot Condition'] !== null ? autolinker.link(String(feature.properties['Lot Condition']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -254,9 +232,9 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        function style_EmptyLots_2_0() {
+        function style_RemainingCannabisInfrastructure_2_0() {
             return {
-                pane: 'pane_EmptyLots_2',
+                pane: 'pane_RemainingCannabisInfrastructure_2',
                 opacity: 1,
                 color: 'rgba(35,35,35,1.0)',
                 dashArray: '',
@@ -265,26 +243,26 @@
                 weight: 1.0, 
                 fill: true,
                 fillOpacity: 1,
-                fillColor: 'rgba(0,255,9,1.0)',
+                fillColor: 'rgba(21,225,0,1.0)',
                 interactive: true,
             }
         }
-        map.createPane('pane_EmptyLots_2');
-        map.getPane('pane_EmptyLots_2').style.zIndex = 402;
-        map.getPane('pane_EmptyLots_2').style['mix-blend-mode'] = 'normal';
-        var layer_EmptyLots_2 = new L.geoJson(json_EmptyLots_2, {
+        map.createPane('pane_RemainingCannabisInfrastructure_2');
+        map.getPane('pane_RemainingCannabisInfrastructure_2').style.zIndex = 402;
+        map.getPane('pane_RemainingCannabisInfrastructure_2').style['mix-blend-mode'] = 'normal';
+        var layer_RemainingCannabisInfrastructure_2 = new L.geoJson(json_RemainingCannabisInfrastructure_2, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_EmptyLots_2',
-            layerName: 'layer_EmptyLots_2',
-            pane: 'pane_EmptyLots_2',
-            onEachFeature: pop_EmptyLots_2,
-            style: style_EmptyLots_2_0,
+            dataVar: 'json_RemainingCannabisInfrastructure_2',
+            layerName: 'layer_RemainingCannabisInfrastructure_2',
+            pane: 'pane_RemainingCannabisInfrastructure_2',
+            onEachFeature: pop_RemainingCannabisInfrastructure_2,
+            style: style_RemainingCannabisInfrastructure_2_0,
         });
-        bounds_group.addLayer(layer_EmptyLots_2);
+        bounds_group.addLayer(layer_RemainingCannabisInfrastructure_2);
         var overlaysTree = [
-            {label: '<img src="legend/EmptyLots_2.png" /> Empty Lots', layer: layer_EmptyLots_2},
-            {label: 'All Inspected Parcels<br /><table><tr><td style="text-align: center;"><img src="legend/AllInspectedParcels_1_LienRecorded0.png" /></td><td>Lien Recorded</td></tr><tr><td style="text-align: center;"><img src="legend/AllInspectedParcels_1_NoLienRecorded1.png" /></td><td>No Lien Recorded</td></tr></table>', layer: layer_AllInspectedParcels_1},
+            {label: '<img src="legend/RemainingCannabisInfrastructure_2.png" /> Remaining Cannabis Infrastructure', layer: layer_RemainingCannabisInfrastructure_2},
+            {label: '<img src="legend/AllInspectedParcels_1.png" /> All Inspected Parcels', layer: layer_AllInspectedParcels_1},
             {label: "Standard Map", layer: layer_StandardMap_0, radioGroup: 'bm' },]
         var lay = L.control.layers.tree(null, overlaysTree,{
             //namedToggle: true,
