@@ -59,7 +59,7 @@
             }
         }
         var map = L.map('map', {
-            zoomControl:false, maxZoom:20, minZoom:9
+            zoomControl:false, maxZoom:17, minZoom:12
         }).fitBounds([[35.257060270816886,-120.0416158355373],[35.35201151261653,-119.8185681180518]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
@@ -118,6 +118,8 @@
         document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
         var bounds_group = new L.featureGroup([]);
         function setBounds() {
+            map.setMaxBounds(map.getBounds());
+            map.setMinZoom(map.getZoom());
         }
         map.createPane('pane_StandardMap_0');
         map.getPane('pane_StandardMap_0').style.zIndex = 400;
@@ -125,8 +127,8 @@
             pane: 'pane_StandardMap_0',
             opacity: 1.0,
             attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
-            minZoom: 9,
-            maxZoom: 20,
+            minZoom: 12,
+            maxZoom: 17,
             minNativeZoom: 0,
             maxNativeZoom: 19
         });
