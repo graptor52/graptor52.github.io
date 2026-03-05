@@ -630,6 +630,22 @@ function App() {
   const nextTY=tableMaxYear+1;
   const hasNextY=allYears.includes(nextTY);
 
+  // Holiday emoji map
+  const HOLIDAY_EMOJI = {
+    "New Year's Day": "🎆",
+    "MLK Day": "🕊️",
+    "Lincoln's Birthday": "🎩",
+    "Presidents Day": "🦅",
+    "Memorial Day": "🎖️",
+    "Independence Day": "🎇",
+    "Labor Day": "⚒️",
+    "Native American Day": "🪶",
+    "Veterans Day": "🪖",
+    "Thanksgiving": "🦃",
+    "Day After Thanksgiving": "🛍️",
+    "Christmas": "🎄",
+  };
+
   // Next upcoming holiday
   const nextHoliday = useMemo(()=>{
     const tod = floorDay(new Date());
@@ -698,21 +714,28 @@ function App() {
                 const nextPost = payDates.find(pd=>floorDay(pd)>floorDay(new Date()));
                 const daysToPost = nextPost ? Math.round((floorDay(nextPost).getTime()-todayMs)/(1000*60*60*24)) : null;
                 return (
-                  <div className="panel panel-body" style={{flex:1,display:"flex",flexDirection:"row",alignItems:"flex-end",justifyContent:"space-between",gap:24}}>
-                    <div>
-                      <div className="panel-title" style={{marginBottom:10}}>Next Holiday</div>
-                      <div style={{fontSize:22,lineHeight:1.2,marginBottom:4}}>{nextHoliday.name}</div>
-                      <div className="sans" style={{fontSize:13,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextHoliday.date)}</div>
-                      <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600}}>
-                        {daysUntil===0?"today":daysUntil===1?"tomorrow":`in ${daysUntil} days`}
+                  <div className="panel panel-body" style={{flex:1,display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"space-between",gap:16}}>
+                    {/* Holiday */}
+                    <div style={{display:"flex",alignItems:"center",gap:16,flex:1,minWidth:0}}>
+                      <div style={{fontSize:48,lineHeight:1,flexShrink:0}}>{HOLIDAY_EMOJI[nextHoliday.name]||"📅"}</div>
+                      <div style={{minWidth:0}}>
+                        <div className="panel-title" style={{marginBottom:8}}>Next Holiday</div>
+                        <div style={{fontSize:20,lineHeight:1.2,marginBottom:4}}>{nextHoliday.name}</div>
+                        <div className="sans" style={{fontSize:12,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextHoliday.date)}</div>
+                        <div className="sans" style={{fontSize:11,color:"#C8A96E",fontWeight:600}}>
+                          {daysUntil===0?"today":daysUntil===1?"tomorrow":`in ${daysUntil} days`}
+                        </div>
                       </div>
                     </div>
+                    {/* Divider */}
+                    {nextPost&&<div style={{width:1,alignSelf:"stretch",background:"#E8E0D0",flexShrink:0}}/>}
+                    {/* Accrual */}
                     {nextPost&&(
-                      <div style={{textAlign:"right"}}>
-                        <div className="panel-title" style={{marginBottom:10}}>Next Accrual</div>
-                        <div style={{fontSize:22,lineHeight:1.2,marginBottom:4}}>{fmtHrs(+settings.accrual_rate)}</div>
-                        <div className="sans" style={{fontSize:13,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextPost)}</div>
-                        <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600}}>
+                      <div style={{textAlign:"right",flexShrink:0}}>
+                        <div className="panel-title" style={{marginBottom:8}}>Next Accrual</div>
+                        <div style={{fontSize:20,lineHeight:1.2,marginBottom:4}}>{fmtHrs(+settings.accrual_rate)}</div>
+                        <div className="sans" style={{fontSize:12,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextPost)}</div>
+                        <div className="sans" style={{fontSize:11,color:"#C8A96E",fontWeight:600}}>
                           {daysToPost===0?"posts today":daysToPost===1?"posts tomorrow":`posts in ${daysToPost} days`}
                         </div>
                       </div>
