@@ -197,9 +197,8 @@
       const [settingsSaving, setSettingsSaving] = useState(false);
       const [form, setForm] = useState({ start: "", end: "", hours: "" });
       const [formError, setFormError] = useState("");
-      const [monthsToShow, setMonthsToShow] = useState(12);
       const [chartYear, setChartYear] = useState(new Date().getFullYear());
-      const PERIODS = 54;
+      const PERIODS = 130;
       const todayStr = toDateStr(new Date());
 
       useEffect(() => {
@@ -255,7 +254,9 @@
       const anchorDate = settings ? parseLocalDate(settings.anchor_date) : new Date();
       const payDates = useMemo(() => generatePayDates(anchorDate, PERIODS), [settings?.anchor_date]);
 
-      const cutoffDate = useMemo(() => { const d = new Date(anchorDate); d.setMonth(d.getMonth() + monthsToShow); return d; }, [monthsToShow, settings?.anchor_date]);
+      // Table shows periods up through end of tableMaxYear
+      const [tableMaxYear, setTableMaxYear] = useState(new Date().getFullYear());
+      const cutoffDate = useMemo(() => new Date(tableMaxYear, 11, 31), [tableMaxYear]);
       const visiblePeriods = useMemo(() => payDates.filter(pd => pd <= cutoffDate).length, [payDates, cutoffDate]);
 
       const usageByPeriod = useMemo(() => {
@@ -329,7 +330,15 @@
       }, [periods]);
 
       const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
-      const finalBal = periods.length > 0 ? periods[periods.length - 1].balance : initBal;
+      // Projected balance = 12 months from today
+      const twelveMonthsOut = useMemo(() => {
+        const d = new Date(); d.setMonth(d.getMonth() + 12);
+        return d;
+      }, []);
+      const finalBal = useMemo(() => {
+        const p12 = periods.filter(p => p.date <= twelveMonthsOut);
+        return p12.length > 0 ? p12[p12.length - 1].balance : initBal;
+      }, [periods, twelveMonthsOut, initBal]);
       const negPeriods = periods.filter(p => p.balance < 0).length;
 
       // Current balance: find the most recent period that has already posted
@@ -381,7 +390,7 @@
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "16px", marginBottom: "32px" }}>
                 {[
                   { label: "Current Balance", value: fmtHours(currentBal), sub: `as of ${fmtDate(currentBalDate)}`, warn: false },
-                  { label: "Projected Balance", value: fmtHours(finalBal), sub: `end of ${availableYears[availableYears.length-1] || chartYear}`, warn: finalBal < 0 },
+                  { label: "Projected Balance", value: fmtHours(finalBal), sub: "in 12 months", warn: finalBal < 0 },
                   { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
                   { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
                 ].map(s => (
@@ -544,6 +553,20 @@
                     </table>
                   </div>
                 </div>
+                {/* Load more: show next year */}
+                {(() => {
+                  const nextYear = tableMaxYear + 1;
+                  const hasMore = periods.some(p => p.date.getFullYear() === nextYear);
+                  return hasMore ? (
+                    <div style={{ padding: "14px 20px", borderTop: "1px solid #E8E0D0", textAlign: "center" }}>
+                      <button className="btn btn-secondary"
+                        onClick={() => setTableMaxYear(nextYear)}
+                        style={{ fontSize: "11px", padding: "8px 20px" }}>
+                        Show {nextYear} ›
+                      </button>
+                    </div>
+                  ) : null;
+                })()}
               </div>
             </>)}
           </div>
