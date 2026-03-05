@@ -170,10 +170,10 @@ function CalMonth({ year, month, selected, onToggle, holidays, existingKeys }) {
       <div className="sans" style={{fontWeight:600,fontSize:13,color:"#4A3F30",textAlign:"center",marginBottom:10}}>
         {MONTHS[month]} {year}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,marginBottom:3}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,marginBottom:4}}>
         {DAYS.map(d=>(
           <div key={d} className="sans" style={{textAlign:"center",fontSize:9,fontWeight:600,
-            letterSpacing:"0.05em",textTransform:"uppercase",color:"#B0A090",padding:"3px 1px",overflow:"visible"}}>{d}</div>
+            letterSpacing:"0.04em",textTransform:"uppercase",color:"#B0A090",padding:"4px 0 3px",lineHeight:1.4}}>{d}</div>
         ))}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
@@ -630,6 +630,16 @@ function App() {
   const nextTY=tableMaxYear+1;
   const hasNextY=allYears.includes(nextTY);
 
+  // Next upcoming holiday
+  const nextHoliday = useMemo(()=>{
+    const tod = floorDay(new Date());
+    const entries = Array.from(allHolidays.entries())
+      .map(([k,v])=>({date:parseDate(k),name:v}))
+      .filter(h=>h.date>=tod && !h.name.includes("(Thu)"))
+      .sort((a,b)=>a.date-b.date);
+    return entries[0]||null;
+  },[allHolidays]);
+
   if(authLoading)return<div className="sans" style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center",color:"#8B7D6B"}}>Loading&hellip;</div>;
   if(resetMode)return<ResetPasswordScreen onDone={()=>setResetMode(false)}/>;
   if(!session)return<AuthScreen/>;
@@ -674,12 +684,21 @@ function App() {
           <Chart periods={periods} chartYear={chartYear} setChartYear={setChartYear} allYears={allYears}/>
 
           {/* Bottom */}
-          <div style={{display:"grid",gridTemplateColumns:"440px 1fr",gap:24,alignItems:"start"}}>
+          <div style={{display:"grid",gridTemplateColumns:"440px 1fr",gap:24,alignItems:"stretch"}}>
 
-            {/* Calendar */}
-            <div className="panel panel-body">
-              <div className="panel-title" style={{marginBottom:16}}>Plan Time Off</div>
-              <CalendarPicker onAdd={addEntry} existingEntries={entries} allHolidays={allHolidays}/>
+            {/* Left column: calendar + next holiday */}
+            <div style={{display:"flex",flexDirection:"column",gap:16,height:"100%"}}>
+              <div className="panel panel-body">
+                <div className="panel-title" style={{marginBottom:16}}>Plan Time Off</div>
+                <CalendarPicker onAdd={addEntry} existingEntries={entries} allHolidays={allHolidays}/>
+              </div>
+              {nextHoliday&&(
+                <div className="panel panel-body" style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}}>
+                  <div className="panel-title" style={{marginBottom:10}}>Next Holiday</div>
+                  <div style={{fontSize:22,lineHeight:1.2,marginBottom:6}}>{nextHoliday.name}</div>
+                  <div className="sans" style={{fontSize:13,color:"#8B7D6B"}}>{fmtDate(nextHoliday.date)}</div>
+                </div>
+              )}
             </div>
 
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
