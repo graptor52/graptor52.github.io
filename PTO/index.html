@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vacation Forecast</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #F5F0E8; }
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #C8BFA8; border-radius: 2px; }
+    input, select {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      background: #FFFDF8;
+      border: 1px solid #D8D0C0;
+      border-radius: 4px;
+      padding: 7px 10px;
+      color: #1A1714;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #8B6F47;
+      box-shadow: 0 0 0 2px #8B6F4720;
+    }
+    label {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8B7D6B;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .field { display: flex; flex-direction: column; }
+    tr { transition: background 0.1s; }
+    .trow:hover td { background: #EDE8DC !important; }
+    .add-btn {
+      background: #8B6F47; border: none; color: #F5F0E8;
+      border-radius: 5px; padding: 10px 14px; cursor: pointer;
+      font-family: 'Instrument Sans', sans-serif; font-size: 12px;
+      font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      transition: background 0.15s; width: 100%;
+    }
+    .add-btn:hover { background: #7A5F38; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+    const ACCRUAL_RATE = 3.08;
+    const INITIAL_BALANCE = 11.90;
+    const ANCHOR_DATE = new Date(2026, 2, 6);
+
+    function addDays(d, n) {
+      const r = new Date(d);
+      r.setDate(r.getDate() + n);
+      return r;
+    }
+    function startOfDay(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+    function parseLocalDate(str) {
+      const [y, m, d] = str.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+    function fmtDate(d) {
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+    function fmtDateShort(d) {
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+    function fmtHours(h) {
+      if (h === null || h === undefined) return "—";
+      const sign = h < 0 ? "-" : "";
+      const abs = Math.abs(h);
+      const hrs = Math.floor(abs);
+      const mins = Math.round((abs - hrs) * 60);
+      return mins > 0 ? `${sign}${hrs}h ${mins}m` : `${sign}${hrs}h`;
+    }
+    function countWeekdays(start, end) {
+      let count = 0;
+      let d = startOfDay(start);
+      const e = startOfDay(end);
+      while (d <= e) {
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) count++;
+        d = addDays(d, 1);
+      }
+      return count;
+    }
+    function generatePayDates(n) {
+      const dates = [];
+      for (let i = 0; i < n; i++) dates.push(addDays(ANCHOR_DATE, i * 14));
+      return dates;
+    }
+    function distributeHours(entry, payDates) {
+      const start = startOfDay(entry.start);
+      const end = startOfDay(entry.end);
+      const totalWd = countWeekdays(start, end);
+      if (totalWd === 0) return {};
+      const dist = {};
+      payDates.forEach((pd, i) => {
+        const periodStart = i === 0 ? addDays(pd, -13) : addDays(payDates[i - 1], 1);
+        const periodEnd = pd;
+        const overlapStart = start > periodStart ? start : periodStart;
+        const overlapEnd = end < periodEnd ? end : periodEnd;
+        if (overlapStart <= overlapEnd) {
+          const wd = countWeekdays(overlapStart, overlapEnd);
+          if (wd > 0) dist[i] = (dist[i] || 0) + (wd / totalWd) * entry.hours;
+        }
+      });
+      return dist;
+    }
+
+    function App() {
+      const PERIODS = 52;
+      const payDates = useMemo(() => generatePayDates(PERIODS), []);
+
+      const [entries, setEntries] = useState(() => {
+        try {
+          const saved = localStorage.getItem("pto-entries");
+          if (!saved) return [];
+          return JSON.parse(saved).map(e => ({
+            ...e,
+            start: new Date(e.start),
+            end: new Date(e.end),
+          }));
+        } catch { return []; }
+      });
+
+      const saveEntries = (updated) => {
+        setEntries(updated);
+        try { localStorage.setItem("pto-entries", JSON.stringify(updated)); } catch {}
+      };
+
+      const [form, setForm] = useState({ start: "", end: "", hours: "" });
+      const [formError, setFormError] = useState("");
+      const [monthsToShow, setMonthsToShow] = useState(12);
+
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      const cutoffDate = useMemo(() => {
+        const d = new Date(ANCHOR_DATE);
+        d.setMonth(d.getMonth() + monthsToShow);
+        return d;
+      }, [monthsToShow]);
+
+      const visiblePeriods = useMemo(
+        () => payDates.filter(pd => pd <= cutoffDate).length,
+        [payDates, cutoffDate]
+      );
+
+      const usageByPeriod = useMemo(() => {
+        const map = {};
+        entries.forEach(e => {
+          const dist = distributeHours(e, payDates);
+          Object.entries(dist).forEach(([i, h]) => { map[i] = (map[i] || 0) + h; });
+        });
+        return map;
+      }, [entries, payDates]);
+
+      const periods = useMemo(() => {
+        let bal = INITIAL_BALANCE;
+        return payDates.slice(0, visiblePeriods).map((pd, i) => {
+          const used = usageByPeriod[i] || 0;
+          bal = bal + ACCRUAL_RATE - used;
+          return { i, date: pd, accrued: ACCRUAL_RATE, used: Math.round(used * 100) / 100, balance: Math.round(bal * 100) / 100 };
+        });
+      }, [visiblePeriods, usageByPeriod, payDates]);
+
+      const chartMax = Math.max(...periods.map(p => p.balance), INITIAL_BALANCE) * 1.15;
+      const chartMin = Math.min(0, ...periods.map(p => p.balance));
+      const chartRange = chartMax - chartMin || 1;
+      const W = 560, H = 110;
+      const toX = i => (i / (periods.length - 1 || 1)) * W;
+      const toY = v => H - ((v - chartMin) / chartRange) * H;
+      const linePath = periods.map((p, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
+      const fillPath = linePath + ` L${W},${toY(0)} L0,${toY(0)} Z`;
+
+      const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
+      const finalBal = periods.length > 0 ? periods[periods.length - 1].balance : INITIAL_BALANCE;
+      const negPeriods = periods.filter(p => p.balance < 0).length;
+
+      const addEntry = () => {
+        setFormError("");
+        if (!form.start || !form.end || !form.hours) { setFormError("All fields required."); return; }
+        const s = parseLocalDate(form.start);
+        const e = parseLocalDate(form.end);
+        if (e < s) { setFormError("End date must be on or after start."); return; }
+        const h = parseFloat(form.hours);
+        if (isNaN(h) || h <= 0) { setFormError("Hours must be a positive number."); return; }
+        saveEntries([...entries, { id: Date.now(), start: s, end: e, hours: h }]);
+        setForm({ start: "", end: "", hours: "" });
+      };
+
+      const removeEntry = id => saveEntries(entries.filter(e => e.id !== id));
+
+      // Month X-axis labels
+      const monthLabels = [];
+      let lastMonth = -1;
+      periods.forEach((p, i) => {
+        const m = p.date.getMonth();
+        if (m !== lastMonth) { lastMonth = m; monthLabels.push({ i, label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) }); }
+      });
+
+      const preview = (() => {
+        if (!form.start || !form.end || !form.hours) return null;
+        const s = parseLocalDate(form.start);
+        const e = parseLocalDate(form.end);
+        const wd = countWeekdays(s, e);
+        const h = parseFloat(form.hours);
+        if (wd > 0 && !isNaN(h) && h > 0) return { wd, hpd: (h / wd).toFixed(1) };
+        return null;
+      })();
+
+      const ss = (obj) => Object.assign({}, obj);
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#F5F0E8", fontFamily: "'Instrument Serif', Georgia, serif", color: "#1A1714" }}>
+          <div style={{ height: "4px", background: "linear-gradient(90deg, #8B6F47, #C8A96E, #8B6F47)" }} />
+          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px" }}>
+
+            {/* Header */}
+            <div style={{ marginBottom: "40px", borderBottom: "1px solid #C8BFA8", paddingBottom: "24px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                <div>
+                  <h1 style={{ fontSize: "38px", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.01em" }}>Vacation Forecast</h1>
+                  <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B", marginTop: "6px" }}>
+                    3.08h / bi-weekly · starting {fmtDate(ANCHOR_DATE)} · {fmtHours(INITIAL_BALANCE)} current balance
+                  </p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B" }}>Show</span>
+                  <select value={monthsToShow} onChange={e => setMonthsToShow(+e.target.value)} style={{ padding: "4px 8px" }}>
+                    {[6, 12, 18, 24].map(m => <option key={m} value={m}>{m} months</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
+              {[
+                { label: "Current Balance", value: fmtHours(INITIAL_BALANCE), sub: "as of Mar 6", warn: false },
+                { label: "Projected Balance", value: fmtHours(finalBal), sub: `in ${monthsToShow} months`, warn: finalBal < 0 },
+                { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
+                { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
+              ].map(s => (
+                <div key={s.label} style={{ background: s.warn ? "#FFF0E8" : "#FFFDF8", border: `1px solid ${s.warn ? "#E8A87C" : "#D8D0C0"}`, borderRadius: "8px", padding: "16px 18px" }}>
+                  <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: s.warn ? "#B05A20" : "#8B7D6B", marginBottom: "6px" }}>{s.label}</div>
+                  <div style={{ fontSize: "26px", color: s.warn ? "#B05A20" : "#1A1714", lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: s.warn ? "#B05A20" : "#A89880", marginTop: "4px" }}>{s.sub}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chart */}
+            <div style={{ background: "#FFFDF8", border: "1px solid #D8D0C0", borderRadius: "8px", padding: "24px 24px 16px", marginBottom: "32px" }}>
+              <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7D6B", marginBottom: "16px" }}>Balance Over Time</div>
+              <svg width="100%" viewBox={`0 0 ${W} ${H + 24}`} style={{ overflow: "visible", display: "block" }}>
+                <defs>
+                  <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.18" />
+                    <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.02" />
+                  </linearGradient>
+                </defs>
+                {[0.25, 0.5, 0.75, 1].map(f => {
+                  const v = chartMin + chartRange * f;
+                  return (
+                    <g key={f}>
+                      <line x1={0} x2={W} y1={toY(v)} y2={toY(v)} stroke="#E8E0D0" strokeWidth="1" />
+                      <text x={W + 8} y={toY(v) + 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans">{Math.round(v)}h</text>
+                    </g>
+                  );
+                })}
+                {chartMin < 0 && <line x1={0} x2={W} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />}
+                <path d={fillPath} fill="url(#fillGrad)" />
+                <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+                {periods.filter(p => p.used > 0).map(p => (
+                  <circle key={p.i} cx={toX(p.i)} cy={toY(p.balance)} r="4" fill="#8B6F47" stroke="#F5F0E8" strokeWidth="2" />
+                ))}
+                {monthLabels.map(l => (
+                  <text key={l.i} x={toX(l.i)} y={H + 20} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
+                ))}
+              </svg>
+            </div>
+
+            {/* Bottom grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "24px", alignItems: "start" }}>
+
+              {/* Add time off */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ background: "#FFFDF8", border: "1px solid #D8D0C0", borderRadius: "8px", padding: "20px" }}>
+                  <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7D6B", marginBottom: "16px" }}>Add Planned Time Off</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                      <div className="field">
+                        <label>Start Date</label>
+                        <input type="date" value={form.start} min={todayStr} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />
+                      </div>
+                      <div className="field">
+                        <label>End Date</label>
+                        <input type="date" value={form.end} min={form.start || todayStr} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div className="field">
+                      <label>Total Hours to Use</label>
+                      <input type="number" min="1" step="0.5" placeholder="e.g. 40" value={form.hours}
+                        onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
+                        onKeyDown={e => e.key === "Enter" && addEntry()}
+                        style={{ width: "100%" }} />
+                    </div>
+                    {preview && (
+                      <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#8B7D6B", background: "#F0EBE0", borderRadius: "4px", padding: "8px 10px" }}>
+                        {preview.wd} weekday{preview.wd !== 1 ? "s" : ""} · ~{preview.hpd}h/day · distributed across pay periods
+                      </div>
+                    )}
+                    {formError && <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#CC4A1A" }}>{formError}</div>}
+                    <button className="add-btn" onClick={addEntry}>Add Entry</button>
+                  </div>
+                </div>
+
+                {entries.length > 0 && (
+                  <div style={{ background: "#FFFDF8", border: "1px solid #D8D0C0", borderRadius: "8px", padding: "20px" }}>
+                    <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7D6B", marginBottom: "12px" }}>Planned Entries</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {entries.map(e => (
+                        <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "#F5F0E8", borderRadius: "5px" }}>
+                          <div>
+                            <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#1A1714", fontWeight: 500 }}>
+                              {fmtDateShort(e.start)}{e.start.toDateString() !== e.end.toDateString() ? ` – ${fmtDateShort(e.end)}` : ""}
+                            </div>
+                            <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#8B7D6B" }}>
+                              {fmtHours(e.hours)} · {countWeekdays(e.start, e.end)} weekdays
+                            </div>
+                          </div>
+                          <button onClick={() => removeEntry(e.id)} style={{ background: "none", border: "none", color: "#B0A090", cursor: "pointer", fontSize: "20px", lineHeight: 1, padding: "0 4px" }}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Table */}
+              <div style={{ background: "#FFFDF8", border: "1px solid #D8D0C0", borderRadius: "8px", overflow: "hidden" }}>
+                <div style={{ padding: "14px 20px", borderBottom: "1px solid #E8E0D0", fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7D6B" }}>Pay Period Detail</div>
+                <div style={{ overflowY: "auto", maxHeight: "520px" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ position: "sticky", top: 0, background: "#F5F0E8", zIndex: 1 }}>
+                        {["Check Date", "Accrued", "Used", "Balance"].map(h => (
+                          <th key={h} style={{ padding: "10px 16px", textAlign: h === "Check Date" ? "left" : "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8B7D6B", borderBottom: "1px solid #D8D0C0", whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {periods.map((p, i) => (
+                        <tr key={i} className="trow" style={{ borderBottom: "1px solid #EDE8DC" }}>
+                          <td style={{ padding: "9px 16px", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#4A3F30", whiteSpace: "nowrap" }}>
+                            {fmtDate(p.date)}
+                            {p.used > 0 && <span style={{ marginLeft: "6px", fontSize: "9px", color: "#8B6F47", background: "#EDE0CC", borderRadius: "3px", padding: "1px 5px", fontWeight: 600, letterSpacing: "0.05em" }}>TIME OFF</span>}
+                          </td>
+                          <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#6B8B6B" }}>+{fmtHours(p.accrued)}</td>
+                          <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: p.used > 0 ? "#8B6F47" : "#C8BFA8" }}>{p.used > 0 ? `−${fmtHours(p.used)}` : "—"}</td>
+                          <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", fontWeight: 600, color: p.balance < 0 ? "#CC4A1A" : "#1A1714" }}>{fmtHours(p.balance)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
