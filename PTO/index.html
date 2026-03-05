@@ -292,27 +292,19 @@
 
       const monthLabels = useMemo(() => {
         if (periods.length < 2) return [];
-        const first = periods[0].date.getTime();
-        const last = periods[periods.length - 1].getTime ? periods[periods.length - 1].getTime() : periods[periods.length - 1].date.getTime();
-        const totalMs = last - first;
-        // collect one label per calendar month, positioned by real date
+        // Pick ~8 evenly spaced indices, place by true x position, no pinning
+        const count = Math.min(8, periods.length);
         const labels = [];
-        const seen = new Set();
-        periods.forEach((p, i) => {
-          const key = p.date.getFullYear() + "-" + p.date.getMonth();
-          if (!seen.has(key)) {
-            seen.add(key);
-            const xFrac = totalMs > 0 ? (p.date.getTime() - first) / totalMs : 0;
-            const x = PAD_L + xFrac * IW;
-            labels.push({ i, x, label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) });
-          }
-        });
-        // filter out labels that are too close together (min 38px apart)
-        const filtered = [];
-        labels.forEach(l => {
-          if (filtered.length === 0 || l.x - filtered[filtered.length - 1].x >= 38) filtered.push(l);
-        });
-        return filtered;
+        for (let k = 0; k < count; k++) {
+          const i = Math.round(k * (periods.length - 1) / (count - 1));
+          const p = periods[i];
+          labels.push({
+            i,
+            x: toX(i),
+            label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" })
+          });
+        }
+        return labels;
       }, [periods]);
 
       // Y-axis: nice multiples of 25
@@ -327,6 +319,12 @@
       const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
       const finalBal = periods.length > 0 ? periods[periods.length - 1].balance : initBal;
       const negPeriods = periods.filter(p => p.balance < 0).length;
+
+      // Current balance: find the most recent period that has already posted
+      const today = startOfDay(new Date());
+      const lastPosted = periods.filter(p => startOfDay(p.date) <= today).slice(-1)[0];
+      const currentBal = lastPosted ? lastPosted.balance : initBal;
+      const currentBalDate = lastPosted ? lastPosted.date : (settings ? parseLocalDate(settings.balance_as_of) : new Date());
 
       const preview = (() => {
         if (!form.start || !form.end || !form.hours) return null;
@@ -375,7 +373,7 @@
               {/* Stats */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "16px", marginBottom: "32px" }}>
                 {[
-                  { label: "Current Balance", value: fmtHours(initBal), sub: `as of ${fmtDate(parseLocalDate(settings.balance_as_of))}`, warn: false },
+                  { label: "Current Balance", value: fmtHours(currentBal), sub: `as of ${fmtDate(currentBalDate)}`, warn: false },
                   { label: "Projected Balance", value: fmtHours(finalBal), sub: `in ${monthsToShow} months`, warn: finalBal < 0 },
                   { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
                   { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
@@ -430,12 +428,10 @@
                       onMouseLeave={() => setHoveredDot(null)}
                     />;
                   })}
-                  {/* X-axis month labels — date-proportional, min-gap filtered */}
-                  {monthLabels.map((l, li) => {
-                    const anchor = li === 0 ? "start" : li === monthLabels.length - 1 ? "end" : "middle";
-                    const x = li === 0 ? PAD_L : li === monthLabels.length - 1 ? PAD_L + IW : l.x;
-                    return <text key={l.i} x={x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor={anchor}>{l.label}</text>;
-                  })}
+                  {/* X-axis month labels — evenly spaced by index */}
+                  {monthLabels.map(l => (
+                    <text key={l.i} x={l.x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
+                  ))}
                   {/* Tooltip */}
                   {hoveredDot !== null && (() => {
                     const p = periods[hoveredDot];
