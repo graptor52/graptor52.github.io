@@ -292,20 +292,37 @@
 
       const monthLabels = useMemo(() => {
         if (periods.length < 2) return [];
+        const first = periods[0].date.getTime();
+        const last = periods[periods.length - 1].getTime ? periods[periods.length - 1].getTime() : periods[periods.length - 1].date.getTime();
+        const totalMs = last - first;
+        // collect one label per calendar month, positioned by real date
         const labels = [];
-        const step = Math.max(1, Math.floor(periods.length / 7));
         const seen = new Set();
         periods.forEach((p, i) => {
-          if (i % step === 0 || i === periods.length - 1) {
-            const key = p.date.getFullYear() + "-" + p.date.getMonth();
-            if (!seen.has(key)) {
-              seen.add(key);
-              labels.push({ i, x: toX(i), label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) });
-            }
+          const key = p.date.getFullYear() + "-" + p.date.getMonth();
+          if (!seen.has(key)) {
+            seen.add(key);
+            const xFrac = totalMs > 0 ? (p.date.getTime() - first) / totalMs : 0;
+            const x = PAD_L + xFrac * IW;
+            labels.push({ i, x, label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) });
           }
         });
-        return labels;
+        // filter out labels that are too close together (min 38px apart)
+        const filtered = [];
+        labels.forEach(l => {
+          if (filtered.length === 0 || l.x - filtered[filtered.length - 1].x >= 38) filtered.push(l);
+        });
+        return filtered;
       }, [periods]);
+
+      // Y-axis: nice multiples of 25
+      const yGridLines = useMemo(() => {
+        const lines = [];
+        const step = 25;
+        const start = Math.ceil(chartMin / step) * step;
+        for (let v = start; v <= chartMax; v += step) lines.push(v);
+        return lines;
+      }, [chartMin, chartMax]);
 
       const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
       const finalBal = periods.length > 0 ? periods[periods.length - 1].balance : initBal;
@@ -384,13 +401,12 @@
                       <rect x={PAD_L} y={PAD_T} width={IW} height={IH} />
                     </clipPath>
                   </defs>
-                  {/* Grid lines + Y labels (contained, no spillover) */}
-                  {[0.25,0.5,0.75,1].map(f => {
-                    const v = chartMin + chartRange * f;
+                  {/* Grid lines + Y labels — multiples of 25 */}
+                  {yGridLines.map(v => {
                     const y = toY(v);
-                    return <g key={f}>
+                    return <g key={v}>
                       <line x1={PAD_L} x2={PAD_L + IW} y1={y} y2={y} stroke="#E8E0D0" strokeWidth="1" />
-                      <text x={PAD_L + IW + 6} y={y + 3.5} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" dominantBaseline="middle" textAnchor="start">{Math.round(v)}h</text>
+                      <text x={PAD_L + IW + 6} y={y} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" dominantBaseline="middle" textAnchor="start">{v}h</text>
                     </g>;
                   })}
                   {chartMin < 0 && <line x1={PAD_L} x2={PAD_L+IW} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />}
@@ -414,10 +430,12 @@
                       onMouseLeave={() => setHoveredDot(null)}
                     />;
                   })}
-                  {/* X-axis month labels — evenly spaced, no clipping */}
-                  {monthLabels.map(l => (
-                    <text key={l.i} x={Math.max(PAD_L + 12, Math.min(PAD_L + IW - 12, l.x))} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
-                  ))}
+                  {/* X-axis month labels — date-proportional, min-gap filtered */}
+                  {monthLabels.map((l, li) => {
+                    const anchor = li === 0 ? "start" : li === monthLabels.length - 1 ? "end" : "middle";
+                    const x = li === 0 ? PAD_L : li === monthLabels.length - 1 ? PAD_L + IW : l.x;
+                    return <text key={l.i} x={x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor={anchor}>{l.label}</text>;
+                  })}
                   {/* Tooltip */}
                   {hoveredDot !== null && (() => {
                     const p = periods[hoveredDot];
