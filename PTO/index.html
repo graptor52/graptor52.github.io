@@ -8,573 +8,667 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #F5F0E8; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #F5F0E8; font-family: 'Instrument Serif', Georgia, serif; color: #1A1714; }
     ::-webkit-scrollbar { width: 3px; height: 3px; }
-    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #C8BFA8; border-radius: 2px; }
     input, select {
-      font-family: 'Instrument Sans', sans-serif;
-      font-size: 13px;
-      background: #FFFDF8;
-      border: 1px solid #D8D0C0;
-      border-radius: 4px;
-      padding: 7px 10px;
-      color: #1A1714;
-      outline: none;
+      font-family: 'Instrument Sans', sans-serif; font-size: 13px;
+      background: #FFFDF8; border: 1px solid #D8D0C0; border-radius: 4px;
+      padding: 7px 10px; color: #1A1714; outline: none; width: 100%;
       transition: border-color 0.2s, box-shadow 0.2s;
-      width: 100%;
     }
-    input:focus, select:focus { border-color: #8B6F47; box-shadow: 0 0 0 2px #8B6F4720; }
-    label { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; display: block; margin-bottom: 4px; }
-    .field { display: flex; flex-direction: column; }
-    tr { transition: background 0.1s; }
-    .trow:hover td { background: #EDE8DC !important; }
-    .btn { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 5px; padding: 10px 16px; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:focus, select:focus { border-color: #8B6F47; box-shadow: 0 0 0 2px #8B6F4718; }
+    label { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; display: block; margin-bottom: 4px; }
+    .field { display: flex; flex-direction: column; gap: 2px; }
+    .panel { background: #FFFDF8; border: 1px solid #D8D0C0; border-radius: 8px; }
+    .panel-body { padding: 20px; }
+    .panel-title { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; }
+    .btn { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 5px;
+      padding: 9px 16px; cursor: pointer; transition: background 0.15s; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-primary { background: #8B6F47; color: #F5F0E8; }
     .btn-primary:hover:not(:disabled) { background: #7A5F38; }
-    .btn-secondary { background: #EDE8DC; color: #4A3F30; }
+    .btn-secondary { background: #EDE8DC; color: #4A3F30; border: 1px solid #D8D0C0; }
     .btn-secondary:hover:not(:disabled) { background: #E0D8CC; }
-    .panel { background: #FFFDF8; border: 1px solid #D8D0C0; border-radius: 8px; padding: 20px; }
-    .panel-title { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; margin-bottom: 16px; }
-    .error-msg { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #CC4A1A; margin-top: 4px; }
-    .success-msg { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #4A8B6B; margin-top: 4px; }
+    .err { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #CC4A1A; }
+    .ok  { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #4A8B6B; }
+    .sans { font-family: 'Instrument Sans', sans-serif; }
+    tr.trow:hover td { background: #EDE8DC; }
   </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useEffect } = React;
 
-    const SUPABASE_URL = "https://ivxjtjutarmxolzyluwn.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2eGp0anV0YXJteG9senlsdXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzAwOTcsImV4cCI6MjA4ODI0NjA5N30.GE0wZ5yqt8HejXur0LLWZBtZocy0IZIP7WDlWW_w1uQ";
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ── Supabase ─────────────────────────────────────────────────────────────────
+const sb = supabase.createClient(
+  "https://ivxjtjutarmxolzyluwn.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2eGp0anV0YXJteG9senlsdXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzAwOTcsImV4cCI6MjA4ODI0NjA5N30.GE0wZ5yqt8HejXur0LLWZBtZocy0IZIP7WDlWW_w1uQ"
+);
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
-    function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-    function parseLocalDate(str) { const [y,m,d] = str.split("-").map(Number); return new Date(y, m-1, d); }
-    function toDateStr(d) { return d.toISOString().split("T")[0]; }
-    function fmtDate(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
-    function fmtDateShort(d) { return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
-    function fmtHours(h) {
-      if (h === null || h === undefined) return "—";
-      const sign = h < 0 ? "-" : ""; const abs = Math.abs(h);
-      const hrs = Math.floor(abs); const mins = Math.round((abs - hrs) * 60);
-      return mins > 0 ? `${sign}${hrs}h ${mins}m` : `${sign}${hrs}h`;
+// ── Pure helpers ──────────────────────────────────────────────────────────────
+const addDays    = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+const floorDay   = (d)    => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const parseDate  = (s)    => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const toISO      = (d)    => d.toISOString().split("T")[0];
+const fmtDate    = (d)    => d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+const fmtShort   = (d)    => d.toLocaleDateString("en-US", { month:"short", day:"numeric" });
+
+function fmtHrs(h) {
+  if (h == null) return "—";
+  const sign = h < 0 ? "-" : "", abs = Math.abs(h);
+  const hrs = Math.floor(abs), mins = Math.round((abs - hrs) * 60);
+  return mins ? `${sign}${hrs}h ${mins}m` : `${sign}${hrs}h`;
+}
+
+function weekdays(a, b) {
+  let n = 0, d = floorDay(a), e = floorDay(b);
+  while (d <= e) { const w = d.getDay(); if (w && w < 6) n++; d = addDays(d,1); }
+  return n;
+}
+
+// Generate pay dates: anchor + every 14 days, N periods total
+function makePayDates(anchor, n) {
+  return Array.from({length: n}, (_, i) => addDays(anchor, i * 14));
+}
+
+// Distribute entry hours across pay periods by weekday overlap
+function distribute(entry, payDates) {
+  const s = floorDay(entry.start), e = floorDay(entry.end);
+  const totalWd = weekdays(s, e);
+  if (!totalWd) return {};
+  const out = {};
+  payDates.forEach((pd, i) => {
+    const pStart = i === 0 ? addDays(pd, -13) : addDays(payDates[i-1], 1);
+    const os = s > pStart ? s : pStart;
+    const oe = e < pd    ? e : pd;
+    if (os <= oe) {
+      const wd = weekdays(os, oe);
+      if (wd) out[i] = (out[i] || 0) + (wd / totalWd) * entry.hours;
     }
-    function countWeekdays(start, end) {
-      let count = 0, d = startOfDay(start); const e = startOfDay(end);
-      while (d <= e) { const dow = d.getDay(); if (dow !== 0 && dow !== 6) count++; d = addDays(d, 1); }
-      return count;
+  });
+  return out;
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function AuthScreen() {
+  const [mode, setMode] = useState("login");
+  const [email, setEmail] = useState(""), [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false), [err, setErr] = useState(""), [msg, setMsg] = useState("");
+
+  const go = async () => {
+    setErr(""); setMsg(""); setBusy(true);
+    if (mode === "login") {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+      if (error) setErr(error.message);
+    } else if (mode === "signup") {
+      const { error } = await sb.auth.signUp({ email, password: pw });
+      if (error) setErr(error.message); else setMsg("Check your email to confirm, then sign in.");
+    } else {
+      const { error } = await sb.auth.resetPasswordForEmail(email);
+      if (error) setErr(error.message); else setMsg("Reset email sent.");
     }
-    function generatePayDates(anchor, n) {
-      return Array.from({ length: n }, (_, i) => addDays(anchor, i * 14));
-    }
-    function distributeHours(entry, payDates) {
-      const start = startOfDay(entry.start), end = startOfDay(entry.end);
-      const totalWd = countWeekdays(start, end);
-      if (totalWd === 0) return {};
-      const dist = {};
-      payDates.forEach((pd, i) => {
-        const pStart = i === 0 ? addDays(pd, -13) : addDays(payDates[i-1], 1);
-        const oStart = start > pStart ? start : pStart;
-        const oEnd = end < pd ? end : pd;
-        if (oStart <= oEnd) { const wd = countWeekdays(oStart, oEnd); if (wd > 0) dist[i] = (dist[i] || 0) + (wd / totalWd) * entry.hours; }
-      });
-      return dist;
-    }
+    setBusy(false);
+  };
 
-    // ── Auth Screen ───────────────────────────────────────────────────────────
-    function AuthScreen() {
-      const [mode, setMode] = useState("login");
-      const [email, setEmail] = useState(""), [password, setPassword] = useState("");
-      const [loading, setLoading] = useState(false), [error, setError] = useState(""), [msg, setMsg] = useState("");
+  const sw = m => { setMode(m); setErr(""); setMsg(""); };
 
-      const submit = async () => {
-        setError(""); setMsg(""); setLoading(true);
-        if (mode === "login") {
-          const { error } = await sb.auth.signInWithPassword({ email, password });
-          if (error) setError(error.message);
-        } else if (mode === "signup") {
-          const { error } = await sb.auth.signUp({ email, password });
-          if (error) setError(error.message); else setMsg("Check your email to confirm, then sign in.");
-        } else {
-          const { error } = await sb.auth.resetPasswordForEmail(email);
-          if (error) setError(error.message); else setMsg("Password reset email sent.");
-        }
-        setLoading(false);
-      };
-
-      const sw = (m) => { setMode(m); setError(""); setMsg(""); };
-
-      return (
-        <div style={{ minHeight: "100vh", background: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Instrument Serif', Georgia, serif" }}>
-          <div style={{ width: "100%", maxWidth: "400px", padding: "0 24px" }}>
-            <div style={{ textAlign: "center", marginBottom: "36px" }}>
-              <div style={{ height: "3px", background: "linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)", marginBottom: "28px", borderRadius: "2px" }} />
-              <h1 style={{ fontSize: "34px", fontWeight: 400, color: "#1A1714", letterSpacing: "-0.01em" }}>Vacation Forecast</h1>
-              <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B", marginTop: "8px" }}>
-                {mode === "login" ? "Sign in to your account" : mode === "signup" ? "Create an account" : "Reset your password"}
-              </p>
-            </div>
-            <div className="panel" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div className="field"><label>Email</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder="you@example.com" /></div>
-              {mode !== "forgot" && <div className="field"><label>Password</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submit()} placeholder="••••••••" /></div>}
-              {error && <div className="error-msg">{error}</div>}
-              {msg && <div className="success-msg">{msg}</div>}
-              <button className="btn btn-primary" onClick={submit} disabled={loading} style={{ width: "100%" }}>
-                {loading ? "Please wait…" : mode === "login" ? "Sign In" : mode === "signup" ? "Create Account" : "Send Reset Email"}
-              </button>
-              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#8B7D6B" }}>
-                {mode === "login" ? <>
-                  <span style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => sw("signup")}>Create account</span>
-                  <span style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => sw("forgot")}>Forgot password?</span>
-                </> : <span style={{ cursor: "pointer", textDecoration: "underline" }} onClick={() => sw("login")}>Back to sign in</span>}
-              </div>
-            </div>
+  return (
+    <div style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 24px"}}>
+        <div style={{textAlign:"center",marginBottom:36}}>
+          <div style={{height:3,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)",borderRadius:2,marginBottom:28}}/>
+          <h1 style={{fontSize:34,fontWeight:400,letterSpacing:"-0.01em"}}>Vacation Forecast</h1>
+          <p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:8}}>
+            {mode==="login"?"Sign in to your account":mode==="signup"?"Create an account":"Reset your password"}
+          </p>
+        </div>
+        <div className="panel panel-body" style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div className="field"><label>Email</label>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="you@example.com"/>
+          </div>
+          {mode !== "forgot" && <div className="field"><label>Password</label>
+            <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="••••••••"/>
+          </div>}
+          {err && <div className="err">{err}</div>}
+          {msg && <div className="ok">{msg}</div>}
+          <button className="btn btn-primary" onClick={go} disabled={busy} style={{width:"100%"}}>
+            {busy?"Please wait…":mode==="login"?"Sign In":mode==="signup"?"Create Account":"Send Reset Email"}
+          </button>
+          <div className="sans" style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#8B7D6B"}}>
+            {mode==="login"
+              ? <><span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("signup")}>Create account</span>
+                  <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("forgot")}>Forgot password?</span></>
+              : <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("login")}>Back to sign in</span>}
           </div>
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+}
 
-    // ── Settings Modal ────────────────────────────────────────────────────────
-    function SettingsModal({ settings, onSave, onClose, saving }) {
-      const [f, setF] = useState({ ...settings });
-      const [error, setError] = useState("");
-      const upd = (k, v) => setF(p => ({ ...p, [k]: v }));
+// ── Settings Modal ────────────────────────────────────────────────────────────
+function SettingsModal({ init, onSave, onClose, busy }) {
+  const [f, setF] = useState({...init});
+  const [err, setErr] = useState("");
+  const set = (k,v) => setF(p=>({...p,[k]:v}));
 
-      const save = async () => {
-        setError("");
-        if (!f.balance_as_of || !f.anchor_date) { setError("All dates required."); return; }
-        if (isNaN(+f.accrual_rate) || +f.accrual_rate <= 0) { setError("Accrual rate must be a positive number."); return; }
-        if (isNaN(+f.initial_balance)) { setError("Balance must be a number."); return; }
-        await onSave(f);
-      };
+  const save = async () => {
+    setErr("");
+    if (!f.balance_as_of || !f.anchor_date) { setErr("All dates required."); return; }
+    if (!+f.accrual_rate || +f.accrual_rate <= 0) { setErr("Accrual rate must be > 0."); return; }
+    await onSave(f);
+  };
 
-      return (
-        <div style={{ position: "fixed", inset: 0, background: "#1A171470", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: "24px" }}>
-          <div className="panel" style={{ width: "100%", maxWidth: "460px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7D6B" }}>Your Settings</div>
-              <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "22px", color: "#8B7D6B", lineHeight: 1 }}>×</button>
+  return (
+    <div style={{position:"fixed",inset:0,background:"#1A171460",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:24}}>
+      <div className="panel panel-body" style={{width:"100%",maxWidth:460}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          <span className="panel-title">Your Settings</span>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#8B7D6B",lineHeight:1}}>×</button>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            <div className="field"><label>Balance (hrs)</label>
+              <input type="number" step="0.01" value={f.initial_balance} onChange={e=>set("initial_balance",e.target.value)}/>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div className="field"><label>Current Balance (hrs)</label><input type="number" step="0.01" value={f.initial_balance} onChange={e => upd("initial_balance", e.target.value)} /></div>
-                <div className="field"><label>Balance As Of</label><input type="date" value={f.balance_as_of} onChange={e => upd("balance_as_of", e.target.value)} /></div>
-                <div className="field"><label>Accrual / Period (hrs)</label><input type="number" step="0.01" value={f.accrual_rate} onChange={e => upd("accrual_rate", e.target.value)} /></div>
-                <div className="field"><label>Accrual Cap (0 = none)</label><input type="number" step="1" min="0" value={f.accrual_cap} onChange={e => upd("accrual_cap", e.target.value)} /></div>
-              </div>
-              <div className="field">
-                <label>Next Posting Date</label>
-                <input type="date" value={f.anchor_date} onChange={e => upd("anchor_date", e.target.value)} />
-                <span style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#8B7D6B", marginTop: "4px" }}>The next date hours will post to your balance (then every 14 days)</span>
-              </div>
-              {error && <div className="error-msg">{error}</div>}
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button className="btn btn-primary" onClick={save} disabled={saving} style={{ flex: 1 }}>{saving ? "Saving…" : "Save Settings"}</button>
-                <button className="btn btn-secondary" onClick={onClose} style={{ flex: 1 }}>Cancel</button>
-              </div>
+            <div className="field"><label>Balance As Of</label>
+              <input type="date" value={f.balance_as_of} onChange={e=>set("balance_as_of",e.target.value)}/>
+            </div>
+            <div className="field"><label>Accrual / Period (hrs)</label>
+              <input type="number" step="0.01" value={f.accrual_rate} onChange={e=>set("accrual_rate",e.target.value)}/>
+            </div>
+            <div className="field"><label>Cap (0 = none)</label>
+              <input type="number" step="1" min="0" value={f.accrual_cap} onChange={e=>set("accrual_cap",e.target.value)}/>
             </div>
           </div>
+          <div className="field">
+            <label>Next Posting Date</label>
+            <input type="date" value={f.anchor_date} onChange={e=>set("anchor_date",e.target.value)}/>
+            <span className="sans" style={{fontSize:11,color:"#8B7D6B",marginTop:4}}>The next Saturday hours will post, then every 14 days</span>
+          </div>
+          {err && <div className="err">{err}</div>}
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-primary" onClick={save} disabled={busy} style={{flex:1}}>{busy?"Saving…":"Save Settings"}</button>
+            <button className="btn btn-secondary" onClick={onClose} style={{flex:1}}>Cancel</button>
+          </div>
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+}
 
-    // ── Main App ──────────────────────────────────────────────────────────────
-    function App() {
-      const [session, setSession] = useState(null);
-      const [authLoading, setAuthLoading] = useState(true);
-      const [settings, setSettings] = useState(null);
-      const [entries, setEntries] = useState([]);
-      const [dataLoading, setDataLoading] = useState(false);
-      const [showSettings, setShowSettings] = useState(false);
-      const [settingsSaving, setSettingsSaving] = useState(false);
-      const [form, setForm] = useState({ start: "", end: "", hours: "" });
-      const [formError, setFormError] = useState("");
-      const [chartYear, setChartYear] = useState(new Date().getFullYear());
-      const PERIODS = 130;
-      const todayStr = toDateStr(new Date());
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function Chart({ periods, chartYear, setChartYear, allYears }) {
+  const [hovered, setHovered] = useState(null);
 
-      useEffect(() => {
-        sb.auth.getSession().then(({ data }) => { setSession(data.session); setAuthLoading(false); });
-        const { data: { subscription } } = sb.auth.onAuthStateChange((_e, s) => setSession(s));
-        return () => subscription.unsubscribe();
-      }, []);
+  const yearPeriods = useMemo(
+    () => periods.filter(p => p.date.getFullYear() === chartYear),
+    [periods, chartYear]
+  );
 
-      useEffect(() => {
-        if (!session) { setSettings(null); setEntries([]); return; }
-        loadData();
-      }, [session]);
+  // Chart geometry
+  const PL=10, PR=52, PT=8, PB=32, W=580, H=120;
+  const IW = W - PL - PR, IH = H - PT;
 
-      const loadData = async () => {
-        setDataLoading(true);
-        const uid = session.user.id;
-        const { data: profile } = await sb.from("users").select("*").eq("id", uid).single();
-        if (profile) {
-          setSettings(profile);
-        } else {
-          setSettings({ accrual_rate: 3.08, initial_balance: 0, balance_as_of: todayStr, accrual_cap: 0, anchor_date: todayStr });
-          setShowSettings(true);
-        }
-        const { data: rows } = await sb.from("entries").select("*").eq("user_id", uid).order("start_date");
-        if (rows) setEntries(rows.map(r => ({ id: r.id, start: parseLocalDate(r.start_date), end: parseLocalDate(r.end_date), hours: r.hours })));
-        setDataLoading(false);
-      };
+  // X: proportional across Jan 1 – Dec 31 of chartYear
+  const yearMs0 = new Date(chartYear, 0, 1).getTime();
+  const yearMs1 = new Date(chartYear, 11, 31).getTime();
+  const toX = d => PL + ((d.getTime() - yearMs0) / (yearMs1 - yearMs0)) * IW;
 
-      const saveSettings = async (form) => {
-        setSettingsSaving(true);
-        const payload = { id: session.user.id, accrual_rate: +form.accrual_rate, initial_balance: +form.initial_balance, balance_as_of: form.balance_as_of, accrual_cap: +form.accrual_cap, anchor_date: form.anchor_date };
-        const { error } = await sb.from("users").upsert(payload);
-        if (!error) { setSettings(payload); setShowSettings(false); }
-        setSettingsSaving(false);
-      };
+  // Y axis: nice multiples of 25 spanning the year's data
+  const balances = yearPeriods.map(p => p.balance);
+  const rawMax = balances.length ? Math.max(...balances) : 100;
+  const rawMin = balances.length ? Math.min(0, ...balances) : 0;
+  const yStep = 25;
+  const yTop  = Math.ceil(rawMax / yStep) * yStep;
+  const yBot  = Math.floor(rawMin / yStep) * yStep;
+  const yRange = yTop - yBot || yStep;
+  const toY = v => PT + IH - ((v - yBot) / yRange) * IH;
 
-      const addEntry = async () => {
-        setFormError("");
-        if (!form.start || !form.end || !form.hours) { setFormError("All fields required."); return; }
-        const s = parseLocalDate(form.start), e = parseLocalDate(form.end);
-        if (e < s) { setFormError("End must be on or after start."); return; }
-        const h = parseFloat(form.hours);
-        if (isNaN(h) || h <= 0) { setFormError("Hours must be positive."); return; }
-        const { data, error } = await sb.from("entries").insert({ user_id: session.user.id, start_date: toDateStr(s), end_date: toDateStr(e), hours: h }).select().single();
-        if (!error && data) { setEntries(prev => [...prev, { id: data.id, start: s, end: e, hours: h }]); setForm({ start: "", end: "", hours: "" }); }
-      };
+  const gridLines = [];
+  for (let v = yBot; v <= yTop; v += yStep) gridLines.push(v);
 
-      const removeEntry = async (id) => {
-        await sb.from("entries").delete().eq("id", id);
-        setEntries(prev => prev.filter(e => e.id !== id));
-      };
+  // Line + fill paths
+  const linePath = yearPeriods.map((p,i) =>
+    `${i===0?"M":"L"}${toX(p.date).toFixed(1)},${toY(p.balance).toFixed(1)}`
+  ).join(" ");
+  const fillPath = yearPeriods.length > 1
+    ? `${linePath} L${toX(yearPeriods[yearPeriods.length-1].date).toFixed(1)},${toY(0).toFixed(1)} L${toX(yearPeriods[0].date).toFixed(1)},${toY(0).toFixed(1)} Z`
+    : "";
 
-      const anchorDate = settings ? parseLocalDate(settings.anchor_date) : new Date();
-      const payDates = useMemo(() => generatePayDates(anchorDate, PERIODS), [settings?.anchor_date]);
+  // Month labels: one per month, positioned by date
+  const monthLabels = Array.from({length:12}, (_,m) => {
+    const d = new Date(chartYear, m, 1);
+    return { x: toX(d), label: d.toLocaleDateString("en-US",{month:"short"}) };
+  });
 
-      // Table shows periods up through end of tableMaxYear
-      const [tableMaxYear, setTableMaxYear] = useState(new Date().getFullYear());
-      const cutoffDate = useMemo(() => new Date(tableMaxYear, 11, 31), [tableMaxYear]);
-      const visiblePeriods = useMemo(() => payDates.filter(pd => pd <= cutoffDate).length, [payDates, cutoffDate]);
+  const prevYear = allYears[allYears.indexOf(chartYear) - 1];
+  const nextYear = allYears[allYears.indexOf(chartYear) + 1];
 
-      const usageByPeriod = useMemo(() => {
-        const map = {};
-        entries.forEach(e => { const dist = distributeHours(e, payDates); Object.entries(dist).forEach(([i, h]) => { map[i] = (map[i] || 0) + h; }); });
-        return map;
-      }, [entries, payDates]);
+  // Tooltip
+  const hov = hovered != null ? periods.find(p => p.i === hovered) : null;
 
-      const periods = useMemo(() => {
-        if (!settings) return [];
-        let bal = +settings.initial_balance;
-        const cap = +settings.accrual_cap;
-        return payDates.slice(0, visiblePeriods).map((pd, i) => {
-          const used = usageByPeriod[i] || 0;
-          bal = bal + +settings.accrual_rate - used;
-          if (cap > 0) bal = Math.min(bal, cap);
-          return { i, date: pd, accrued: +settings.accrual_rate, used: Math.round(used * 100) / 100, balance: Math.round(bal * 100) / 100 };
-        });
-      }, [visiblePeriods, usageByPeriod, settings]);
+  return (
+    <div className="panel" style={{marginBottom:32}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"18px 20px 0"}}>
+        <span className="panel-title">Balance Over Time</span>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <button onClick={()=>prevYear&&setChartYear(prevYear)} disabled={!prevYear}
+            className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>‹</button>
+          <span className="sans" style={{fontSize:13,fontWeight:600,color:"#4A3F30",minWidth:36,textAlign:"center"}}>{chartYear}</span>
+          <button onClick={()=>nextYear&&setChartYear(nextYear)} disabled={!nextYear}
+            className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>›</button>
+        </div>
+      </div>
+      <div style={{padding:"12px 20px 16px"}}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H+PB}`} style={{display:"block",overflow:"visible"}}>
+          <defs>
+            <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.16"/>
+              <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.01"/>
+            </linearGradient>
+            <clipPath id="cc">
+              <rect x={PL} y={PT} width={IW} height={IH+2}/>
+            </clipPath>
+          </defs>
 
-      // Chart: only periods within chartYear — must come after periods
-      const chartPeriods = useMemo(() => periods.filter(p => p.date.getFullYear() === chartYear), [periods, chartYear]);
+          {/* Grid lines + Y labels */}
+          {gridLines.map(v => (
+            <g key={v}>
+              <line x1={PL} x2={PL+IW} y1={toY(v)} y2={toY(v)} stroke="#E8E0D0" strokeWidth="1"/>
+              <text x={PL+IW+7} y={toY(v)} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans"
+                dominantBaseline="middle" textAnchor="start">{v}h</text>
+            </g>
+          ))}
 
-      const initBal = settings ? +settings.initial_balance : 0;
-      const chartMax = chartPeriods.length > 0 ? Math.max(...chartPeriods.map(p => p.balance)) * 1.15 : 100;
-      const chartMin = chartPeriods.length > 0 ? Math.min(0, ...chartPeriods.map(p => p.balance)) : 0;
-      const chartRange = (chartMax - chartMin) || 1;
-      const PAD_L = 8, PAD_R = 52, PAD_T = 6, PAD_B = 28;
-      const W = 580, H = 116;
-      const IW = W - PAD_L - PAD_R;
-      const IH = H - PAD_T;
+          {/* Zero line if chart goes negative */}
+          {yBot < 0 && (
+            <line x1={PL} x2={PL+IW} y1={toY(0)} y2={toY(0)}
+              stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.6"/>
+          )}
 
-      // X axis spans full calendar year regardless of how many periods fall in it
-      const yearStartMs = new Date(chartYear, 0, 1).getTime();
-      const yearEndMs   = new Date(chartYear, 11, 31).getTime();
-      const yearRangeMs = yearEndMs - yearStartMs;
-      const toX = (date) => PAD_L + ((date.getTime() - yearStartMs) / yearRangeMs) * IW;
-      const toY = v => PAD_T + IH - ((v - chartMin) / chartRange) * IH;
+          {/* Fill + line */}
+          <g clipPath="url(#cc)">
+            {fillPath && <path d={fillPath} fill="url(#fg)"/>}
+            {linePath && <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>}
+          </g>
 
-      const linePath = chartPeriods.map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.date).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
-      const fillPath = chartPeriods.length > 1 ? linePath + ` L${toX(chartPeriods[chartPeriods.length-1].date)},${toY(0)} L${toX(chartPeriods[0].date)},${toY(0)} Z` : "";
+          {/* Dots */}
+          {yearPeriods.map(p => {
+            const cx = toX(p.date), cy = toY(p.balance);
+            const isHov = hovered === p.i, hasUse = p.used > 0;
+            return (
+              <circle key={p.i} cx={cx} cy={cy}
+                r={isHov ? 6 : hasUse ? 4.5 : 3.5}
+                fill={hasUse ? "#CC4A1A" : "#8B6F47"}
+                stroke="#FFFDF8" strokeWidth={isHov ? 2 : 1.5}
+                style={{cursor:"pointer"}}
+                onMouseEnter={() => setHovered(p.i)}
+                onMouseLeave={() => setHovered(null)}
+              />
+            );
+          })}
 
-      const [hoveredDot, setHoveredDot] = useState(null);
-
-      const monthLabels = useMemo(() => {
-        // Fixed Jan–Dec labels positioned by calendar date across the year
-        const labels = [];
-        for (let m = 0; m < 12; m++) {
-          const d = new Date(chartYear, m, 1);
-          labels.push({
-            x: toX(d),
-            label: d.toLocaleDateString("en-US", { month: "short" })
-          });
-        }
-        return labels;
-      }, [chartYear]);
-
-      // Y-axis: nice multiples of 25
-      const yGridLines = useMemo(() => {
-        const lines = [];
-        const step = 25;
-        const start = Math.ceil(chartMin / step) * step;
-        for (let v = start; v <= chartMax; v += step) lines.push(v);
-        return lines;
-      }, [chartMin, chartMax]);
-
-      // Years available for navigation
-      const availableYears = useMemo(() => {
-        const ys = new Set(periods.map(p => p.date.getFullYear()));
-        return Array.from(ys).sort();
-      }, [periods]);
-
-      const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
-      // Projected balance = 12 months from today
-      const twelveMonthsOut = useMemo(() => {
-        const d = new Date(); d.setMonth(d.getMonth() + 12);
-        return d;
-      }, []);
-      const finalBal = useMemo(() => {
-        const p12 = periods.filter(p => p.date <= twelveMonthsOut);
-        return p12.length > 0 ? p12[p12.length - 1].balance : initBal;
-      }, [periods, twelveMonthsOut, initBal]);
-      const negPeriods = periods.filter(p => p.balance < 0).length;
-
-      // Current balance: find the most recent period that has already posted
-      const today = startOfDay(new Date());
-      const lastPosted = periods.filter(p => startOfDay(p.date) <= today).slice(-1)[0];
-      const currentBal = lastPosted ? lastPosted.balance : initBal;
-      const currentBalDate = lastPosted ? lastPosted.date : (settings ? parseLocalDate(settings.balance_as_of) : new Date());
-
-      const preview = (() => {
-        if (!form.start || !form.end || !form.hours) return null;
-        const s = parseLocalDate(form.start), e = parseLocalDate(form.end);
-        const wd = countWeekdays(s, e); const h = parseFloat(form.hours);
-        return (wd > 0 && !isNaN(h) && h > 0) ? { wd, hpd: (h / wd).toFixed(1) } : null;
-      })();
-
-      if (authLoading) return (
-        <div style={{ minHeight: "100vh", background: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Instrument Sans', sans-serif", color: "#8B7D6B" }}>Loading…</div>
-      );
-      if (!session) return <AuthScreen />;
-
-      return (
-        <div style={{ minHeight: "100vh", background: "#F5F0E8", fontFamily: "'Instrument Serif', Georgia, serif", color: "#1A1714" }}>
-          <div style={{ height: "4px", background: "linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)" }} />
-          {showSettings && settings && <SettingsModal settings={settings} onSave={saveSettings} onClose={() => setShowSettings(false)} saving={settingsSaving} />}
-
-          <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px" }}>
-            {/* Header */}
-            <div style={{ marginBottom: "40px", borderBottom: "1px solid #C8BFA8", paddingBottom: "24px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-                <div>
-                  <h1 style={{ fontSize: "38px", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.01em" }}>Vacation Forecast</h1>
-                  {settings && <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B", marginTop: "6px" }}>
-                    {settings.accrual_rate}h / bi-weekly · posts every other Saturday{+settings.accrual_cap > 0 ? ` · cap ${settings.accrual_cap}h` : ""}
-                  </p>}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-
-                  <button className="btn btn-secondary" onClick={() => setShowSettings(true)} style={{ padding: "7px 14px" }}>⚙ Settings</button>
-                  <button className="btn btn-secondary" onClick={() => sb.auth.signOut()} style={{ padding: "7px 14px" }}>Sign Out</button>
-                </div>
-              </div>
-            </div>
-
-            {dataLoading ? (
-              <div style={{ fontFamily: "'Instrument Sans', sans-serif", color: "#8B7D6B", fontSize: "13px" }}>Loading your data…</div>
-            ) : !settings ? null : (<>
-
-              {/* Stats */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "16px", marginBottom: "32px" }}>
-                {[
-                  { label: "Current Balance", value: fmtHours(currentBal), sub: `as of ${fmtDate(currentBalDate)}`, warn: false },
-                  { label: "Projected Balance", value: fmtHours(finalBal), sub: "in 12 months", warn: finalBal < 0 },
-                  { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
-                  { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
-                ].map(s => (
-                  <div key={s.label} style={{ background: s.warn ? "#FFF0E8" : "#FFFDF8", border: `1px solid ${s.warn ? "#E8A87C" : "#D8D0C0"}`, borderRadius: "8px", padding: "16px 18px" }}>
-                    <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: s.warn ? "#B05A20" : "#8B7D6B", marginBottom: "6px" }}>{s.label}</div>
-                    <div style={{ fontSize: "26px", color: s.warn ? "#B05A20" : "#1A1714", lineHeight: 1 }}>{s.value}</div>
-                    <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: s.warn ? "#B05A20" : "#A89880", marginTop: "4px" }}>{s.sub}</div>
-                  </div>
+          {/* Tooltip */}
+          {hov && (() => {
+            const cx = toX(hov.date), cy = toY(hov.balance);
+            const lines = [fmtDate(hov.date), fmtHrs(hov.balance)];
+            if (hov.used > 0) lines.push(`−${fmtHrs(hov.used)} used`);
+            const TW = 124, TH = lines.length * 17 + 12;
+            const tx = cx + TW + 14 > PL+IW ? cx - TW - 8 : cx + 8;
+            const ty = Math.max(PT, Math.min(cy - TH/2, H - TH));
+            return (
+              <g pointerEvents="none">
+                <rect x={tx} y={ty} width={TW} height={TH} rx="4" fill="#1A1714" opacity="0.88"/>
+                {lines.map((l,li) => (
+                  <text key={li} x={tx+9} y={ty+14+li*17}
+                    fill={li===2?"#FF9070":li===1?"#C8A96E":"#F5F0E8"}
+                    fontSize="10" fontFamily="Instrument Sans"
+                    fontWeight={li===0?"400":"600"}>{l}</text>
                 ))}
-              </div>
+              </g>
+            );
+          })()}
 
-              {/* Chart */}
-              <div className="panel" style={{ marginBottom: "32px", padding: "24px 24px 8px", position: "relative" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <div className="panel-title" style={{ marginBottom: 0 }}>Balance Over Time</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "'Instrument Sans', sans-serif" }}>
-                    <button onClick={() => { const i = availableYears.indexOf(chartYear); if (i > 0) setChartYear(availableYears[i-1]); }}
-                      disabled={availableYears.indexOf(chartYear) === 0}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#8B7D6B", fontSize: "16px", padding: "0 4px", opacity: availableYears.indexOf(chartYear) === 0 ? 0.3 : 1 }}>‹</button>
-                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4A3F30", minWidth: "36px", textAlign: "center" }}>{chartYear}</span>
-                    <button onClick={() => { const i = availableYears.indexOf(chartYear); if (i < availableYears.length - 1) setChartYear(availableYears[i+1]); }}
-                      disabled={availableYears.indexOf(chartYear) === availableYears.length - 1}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#8B7D6B", fontSize: "16px", padding: "0 4px", opacity: availableYears.indexOf(chartYear) === availableYears.length - 1 ? 0.3 : 1 }}>›</button>
-                  </div>
-                </div>
-                <svg width="100%" viewBox={`0 0 ${W} ${H + PAD_B}`} style={{ display: "block", overflow: "visible" }}>
-                  <defs>
-                    <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.18" />
-                      <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.02" />
-                    </linearGradient>
-                    <clipPath id="chartClip">
-                      <rect x={PAD_L} y={PAD_T} width={IW} height={IH} />
-                    </clipPath>
-                  </defs>
-                  {/* Grid lines + Y labels — multiples of 25 */}
-                  {yGridLines.map(v => {
-                    const y = toY(v);
-                    return <g key={v}>
-                      <line x1={PAD_L} x2={PAD_L + IW} y1={y} y2={y} stroke="#E8E0D0" strokeWidth="1" />
-                      <text x={PAD_L + IW + 6} y={y} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" dominantBaseline="middle" textAnchor="start">{v}h</text>
-                    </g>;
-                  })}
-                  {chartMin < 0 && <line x1={PAD_L} x2={PAD_L+IW} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />}
-                  {/* Fill + line clipped to chart area */}
-                  <g clipPath="url(#chartClip)">
-                    {fillPath && <path d={fillPath} fill="url(#fillGrad)" />}
-                    <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-                  </g>
-                  {/* Dots on every period in this year */}
-                  {chartPeriods.map(p => {
-                    const cx = toX(p.date), cy = toY(p.balance);
-                    const isHov = hoveredDot === p.i;
-                    const hasUsed = p.used > 0;
-                    return <circle
-                      key={p.i} cx={cx} cy={cy}
-                      r={isHov ? 5 : hasUsed ? 4 : 3}
-                      fill={hasUsed ? "#CC4A1A" : "#8B6F47"}
-                      stroke="#FFFDF8" strokeWidth={isHov ? 2 : 1.5}
-                      style={{ cursor: "pointer", transition: "r 0.1s" }}
-                      onMouseEnter={() => setHoveredDot(p.i)}
-                      onMouseLeave={() => setHoveredDot(null)}
-                    />;
-                  })}
-                  {/* X-axis: Jan–Dec labels */}
-                  {monthLabels.map((l, mi) => (
-                    <text key={mi} x={l.x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
-                  ))}
-                  {/* Tooltip */}
-                  {hoveredDot !== null && (() => {
-                    const p = periods[hoveredDot];
-                    if (!p) return null;
-                    const cx = toX(p.date), cy = toY(p.balance);
-                    const lines = [fmtDate(p.date), fmtHours(p.balance)];
-                    if (p.used > 0) lines.push(`−${fmtHours(p.used)} used`);
-                    const TW = 118, TH = lines.length * 16 + 10;
-                    const tx = cx + TW + 12 > PAD_L + IW ? cx - TW - 8 : cx + 8;
-                    const ty = Math.max(PAD_T, Math.min(cy - TH / 2, H - TH));
-                    return <g pointerEvents="none">
-                      <rect x={tx} y={ty} width={TW} height={TH} rx="4" fill="#1A1714" opacity="0.88" />
-                      {lines.map((line, li) => (
-                        <text key={li} x={tx + 8} y={ty + 14 + li * 16}
-                          fill={li === 2 ? "#FF9070" : li === 1 ? "#C8A96E" : "#F5F0E8"}
-                          fontSize="10" fontFamily="Instrument Sans" fontWeight={li === 0 ? "400" : "600"}>
-                          {line}
-                        </text>
-                      ))}
-                    </g>;
-                  })()}
-                </svg>
-              </div>
+          {/* X axis month labels */}
+          {monthLabels.map((l,mi) => (
+            <text key={mi} x={l.x} y={H+PB-6} fill="#B0A090" fontSize="9"
+              fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
+          ))}
+        </svg>
+      </div>
+    </div>
+  );
+}
 
-              {/* Bottom grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "24px", alignItems: "start" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                  <div className="panel">
-                    <div className="panel-title">Add Planned Time Off</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                        <div className="field"><label>Start Date</label><input type="date" value={form.start} min={todayStr} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} /></div>
-                        <div className="field"><label>End Date</label><input type="date" value={form.end} min={form.start || todayStr} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} /></div>
-                      </div>
-                      <div className="field"><label>Total Hours to Use</label>
-                        <input type="number" min="1" step="0.5" placeholder="e.g. 40" value={form.hours}
-                          onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
-                          onKeyDown={e => e.key === "Enter" && addEntry()} />
-                      </div>
-                      {preview && <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#8B7D6B", background: "#F0EBE0", borderRadius: "4px", padding: "8px 10px" }}>
-                        {preview.wd} weekday{preview.wd !== 1 ? "s" : ""} · ~{preview.hpd}h/day · split across pay periods
-                      </div>}
-                      {formError && <div className="error-msg">{formError}</div>}
-                      <button className="btn btn-primary" onClick={addEntry}>Add Entry</button>
-                    </div>
-                  </div>
+// ── Main App ──────────────────────────────────────────────────────────────────
+function App() {
+  const [session,     setSession]     = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [settings,    setSettings]    = useState(null);
+  const [entries,     setEntries]     = useState([]);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [showSettings,setShowSettings]= useState(false);
+  const [settingsBusy,setSettingsBusy]= useState(false);
+  const [chartYear,   setChartYear]   = useState(new Date().getFullYear());
+  const [tableMaxYear,setTableMaxYear]= useState(new Date().getFullYear());
+  const [form,        setForm]        = useState({start:"",end:"",hours:""});
+  const [formErr,     setFormErr]     = useState("");
+  const todayStr = toISO(new Date());
 
-                  {entries.length > 0 && <div className="panel">
-                    <div className="panel-title">Planned Entries</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {entries.map(e => (
-                        <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "#F5F0E8", borderRadius: "5px" }}>
-                          <div>
-                            <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#1A1714", fontWeight: 500 }}>
-                              {fmtDateShort(e.start)}{e.start.toDateString() !== e.end.toDateString() ? ` – ${fmtDateShort(e.end)}` : ""}
-                            </div>
-                            <div style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "11px", color: "#8B7D6B" }}>{fmtHours(e.hours)} · {countWeekdays(e.start, e.end)} weekdays</div>
-                          </div>
-                          <button onClick={() => removeEntry(e.id)} style={{ background: "none", border: "none", color: "#B0A090", cursor: "pointer", fontSize: "20px", lineHeight: 1, padding: "0 4px" }}
-                            onMouseEnter={ev => ev.target.style.color = "#CC4A1A"}
-                            onMouseLeave={ev => ev.target.style.color = "#B0A090"}>×</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>}
-                </div>
+  // Auth
+  useEffect(() => {
+    sb.auth.getSession().then(({data}) => { setSession(data.session); setAuthLoading(false); });
+    const { data:{subscription} } = sb.auth.onAuthStateChange((_,s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
 
-                <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-                  <div style={{ padding: "14px 20px", borderBottom: "1px solid #E8E0D0" }} className="panel-title">Pay Period Detail</div>
-                  <div style={{ overflowY: "auto", maxHeight: "520px" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ position: "sticky", top: 0, background: "#F5F0E8", zIndex: 1 }}>
-                          {["Posts On","Accrued","Used","Balance"].map(h => (
-                            <th key={h} style={{ padding: "10px 16px", textAlign: h === "Posts On" ? "left" : "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8B7D6B", borderBottom: "1px solid #D8D0C0", whiteSpace: "nowrap" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {periods.map((p, i) => (
-                          <tr key={i} className="trow" style={{ borderBottom: "1px solid #EDE8DC" }}>
-                            <td style={{ padding: "9px 16px", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#4A3F30", whiteSpace: "nowrap" }}>
-                              {fmtDate(p.date)}
-                              {p.used > 0 && <span style={{ marginLeft: "6px", fontSize: "9px", color: "#8B6F47", background: "#EDE0CC", borderRadius: "3px", padding: "1px 5px", fontWeight: 600, letterSpacing: "0.05em" }}>TIME OFF</span>}
-                            </td>
-                            <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: "#6B8B6B" }}>+{fmtHours(p.accrued)}</td>
-                            <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "12px", color: p.used > 0 ? "#8B6F47" : "#C8BFA8" }}>{p.used > 0 ? `−${fmtHours(p.used)}` : "—"}</td>
-                            <td style={{ padding: "9px 16px", textAlign: "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", fontWeight: 600, color: p.balance < 0 ? "#CC4A1A" : "#1A1714" }}>{fmtHours(p.balance)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                {/* Load more: show next year */}
-                {(() => {
-                  const nextYear = tableMaxYear + 1;
-                  const hasMore = periods.some(p => p.date.getFullYear() === nextYear);
-                  return hasMore ? (
-                    <div style={{ padding: "14px 20px", borderTop: "1px solid #E8E0D0", textAlign: "center" }}>
-                      <button className="btn btn-secondary"
-                        onClick={() => setTableMaxYear(nextYear)}
-                        style={{ fontSize: "11px", padding: "8px 20px" }}>
-                        Show {nextYear} ›
-                      </button>
-                    </div>
-                  ) : null;
-                })()}
-              </div>
-            </>)}
+  useEffect(() => {
+    if (!session) { setSettings(null); setEntries([]); return; }
+    loadData();
+  }, [session]);
+
+  const loadData = async () => {
+    setDataLoading(true);
+    const uid = session.user.id;
+    const { data: profile } = await sb.from("users").select("*").eq("id",uid).single();
+    if (profile) {
+      setSettings(profile);
+    } else {
+      const defaults = { accrual_rate:3.08, initial_balance:0, balance_as_of:todayStr, accrual_cap:0, anchor_date:todayStr };
+      setSettings(defaults);
+      setShowSettings(true);
+    }
+    const { data: rows } = await sb.from("entries").select("*").eq("user_id",uid).order("start_date");
+    setEntries((rows||[]).map(r => ({ id:r.id, start:parseDate(r.start_date), end:parseDate(r.end_date), hours:r.hours })));
+    setDataLoading(false);
+  };
+
+  const saveSettings = async (f) => {
+    setSettingsBusy(true);
+    const payload = { id:session.user.id, accrual_rate:+f.accrual_rate, initial_balance:+f.initial_balance,
+      balance_as_of:f.balance_as_of, accrual_cap:+f.accrual_cap, anchor_date:f.anchor_date };
+    const { error } = await sb.from("users").upsert(payload);
+    if (!error) { setSettings(payload); setShowSettings(false); }
+    setSettingsBusy(false);
+  };
+
+  const addEntry = async () => {
+    setFormErr("");
+    if (!form.start||!form.end||!form.hours) { setFormErr("All fields required."); return; }
+    const s = parseDate(form.start), e = parseDate(form.end);
+    if (e < s) { setFormErr("End must be on or after start."); return; }
+    const h = parseFloat(form.hours);
+    if (isNaN(h)||h<=0) { setFormErr("Hours must be positive."); return; }
+    const { data, error } = await sb.from("entries")
+      .insert({ user_id:session.user.id, start_date:toISO(s), end_date:toISO(e), hours:h })
+      .select().single();
+    if (!error && data) {
+      setEntries(prev => [...prev, { id:data.id, start:s, end:e, hours:h }]);
+      setForm({start:"",end:"",hours:""});
+    }
+  };
+
+  const removeEntry = async (id) => {
+    await sb.from("entries").delete().eq("id",id);
+    setEntries(prev => prev.filter(e => e.id !== id));
+  };
+
+  // ── Forecast computation ──────────────────────────────────────────────────
+  // Generate ~5 years of pay dates from anchor
+  const anchorDate = settings ? parseDate(settings.anchor_date) : new Date();
+
+  const payDates = useMemo(
+    () => makePayDates(anchorDate, 130),
+    [settings?.anchor_date]
+  );
+
+  // Usage distributed across pay periods
+  const usageMap = useMemo(() => {
+    const m = {};
+    entries.forEach(e => {
+      Object.entries(distribute(e, payDates)).forEach(([i,h]) => { m[i] = (m[i]||0) + h; });
+    });
+    return m;
+  }, [entries, payDates]);
+
+  // Full period array with running balance
+  const periods = useMemo(() => {
+    if (!settings) return [];
+    let bal = +settings.initial_balance;
+    const rate = +settings.accrual_rate;
+    const cap  = +settings.accrual_cap;
+    // First figure out how many periods elapsed between balance_as_of and anchor
+    // so we start the running balance at the right point.
+    // We treat settings.initial_balance as the balance on settings.balance_as_of.
+    // payDates[0] = anchor (first FUTURE posting date).
+    // Any payDates that fall on or before balance_as_of have already been accounted for in initial_balance,
+    // so we just run forward from there.
+    return payDates.map((pd, i) => {
+      const used = usageMap[i] || 0;
+      bal = bal + rate - used;
+      if (cap > 0) bal = Math.min(bal, cap);
+      return { i, date: pd, accrued: rate, used: Math.round(used*100)/100, balance: Math.round(bal*100)/100 };
+    });
+  }, [settings, payDates, usageMap]);
+
+  // All years that have data
+  const allYears = useMemo(() => {
+    const ys = new Set(periods.map(p => p.date.getFullYear()));
+    return Array.from(ys).sort((a,b) => a-b);
+  }, [periods]);
+
+  // Current balance: last period that has already posted (date ≤ today)
+  const today = floorDay(new Date());
+  const postedPeriods = periods.filter(p => floorDay(p.date) <= today);
+  const currentPeriod = postedPeriods[postedPeriods.length - 1];
+  // If no period has posted yet, use the raw initial balance
+  const currentBal  = currentPeriod ? currentPeriod.balance : (settings ? +settings.initial_balance : 0);
+  const currentDate = currentPeriod ? currentPeriod.date    : (settings ? parseDate(settings.balance_as_of) : new Date());
+
+  // Projected: 12 months from today
+  const twelveOut = new Date(); twelveOut.setMonth(twelveOut.getMonth() + 12);
+  const proj12Periods = periods.filter(p => p.date <= twelveOut);
+  const projBal = proj12Periods.length ? proj12Periods[proj12Periods.length-1].balance
+                                       : (settings ? +settings.initial_balance : 0);
+
+  // Totals
+  const totalPlanned = entries.reduce((s,e) => s+e.hours, 0);
+  const negPeriods   = periods.filter(p => p.balance < 0).length;
+
+  // Table: show periods up through end of tableMaxYear
+  const tablePeriods = periods.filter(p => p.date.getFullYear() <= tableMaxYear);
+  const nextTableYear = tableMaxYear + 1;
+  const hasNextYear   = allYears.includes(nextTableYear);
+
+  // Form preview
+  const preview = (() => {
+    if (!form.start||!form.end||!form.hours) return null;
+    const s = parseDate(form.start), e = parseDate(form.end);
+    const wd = weekdays(s,e); const h = parseFloat(form.hours);
+    return (wd>0&&!isNaN(h)&&h>0) ? {wd, hpd:(h/wd).toFixed(1)} : null;
+  })();
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  if (authLoading) return (
+    <div className="sans" style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center",color:"#8B7D6B"}}>
+      Loading…
+    </div>
+  );
+  if (!session) return <AuthScreen/>;
+
+  return (
+    <div style={{minHeight:"100vh",background:"#F5F0E8"}}>
+      <div style={{height:4,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)"}}/>
+      {showSettings && settings && (
+        <SettingsModal init={settings} onSave={saveSettings} onClose={()=>setShowSettings(false)} busy={settingsBusy}/>
+      )}
+
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"40px 32px"}}>
+
+        {/* Header */}
+        <div style={{marginBottom:40,borderBottom:"1px solid #C8BFA8",paddingBottom:24,
+          display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          <div>
+            <h1 style={{fontSize:38,fontWeight:400,letterSpacing:"-0.01em",lineHeight:1}}>Vacation Forecast</h1>
+            {settings && <p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:6}}>
+              {settings.accrual_rate}h / bi-weekly · posts every other Saturday
+              {+settings.accrual_cap>0?` · cap ${settings.accrual_cap}h`:""}
+            </p>}
+          </div>
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-secondary" onClick={()=>setShowSettings(true)} style={{padding:"7px 14px"}}>⚙ Settings</button>
+            <button className="btn btn-secondary" onClick={()=>sb.auth.signOut()} style={{padding:"7px 14px"}}>Sign Out</button>
           </div>
         </div>
-      );
-    }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+        {dataLoading ? (
+          <div className="sans" style={{color:"#8B7D6B",fontSize:13}}>Loading your data…</div>
+        ) : !settings ? null : (<>
+
+          {/* Stat cards */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:32}}>
+            {[
+              { label:"Current Balance",   value:fmtHrs(currentBal),  sub:`as of ${fmtDate(currentDate)}`,  warn:false },
+              { label:"Projected Balance", value:fmtHrs(projBal),     sub:"in 12 months",                   warn:projBal<0 },
+              { label:"Planned Time Off",  value:fmtHrs(totalPlanned),sub:`${entries.length} entr${entries.length===1?"y":"ies"}`, warn:false },
+              { label:"Periods in Deficit",value:negPeriods,          sub:negPeriods>0?"⚠ goes negative":"all clear", warn:negPeriods>0 },
+            ].map(s => (
+              <div key={s.label} style={{
+                background:s.warn?"#FFF0E8":"#FFFDF8",
+                border:`1px solid ${s.warn?"#E8A87C":"#D8D0C0"}`,
+                borderRadius:8, padding:"16px 18px"
+              }}>
+                <div className="sans" style={{fontSize:10,fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",
+                  color:s.warn?"#B05A20":"#8B7D6B",marginBottom:6}}>{s.label}</div>
+                <div style={{fontSize:26,color:s.warn?"#B05A20":"#1A1714",lineHeight:1}}>{s.value}</div>
+                <div className="sans" style={{fontSize:11,color:s.warn?"#B05A20":"#A89880",marginTop:4}}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Chart */}
+          <Chart periods={periods} chartYear={chartYear} setChartYear={setChartYear} allYears={allYears}/>
+
+          {/* Bottom grid */}
+          <div style={{display:"grid",gridTemplateColumns:"340px 1fr",gap:24,alignItems:"start"}}>
+
+            {/* Left: add entry + entries list */}
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              <div className="panel panel-body">
+                <div className="panel-title" style={{marginBottom:16}}>Add Planned Time Off</div>
+                <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                    <div className="field"><label>Start</label>
+                      <input type="date" value={form.start} min={todayStr} onChange={e=>setForm(f=>({...f,start:e.target.value}))}/>
+                    </div>
+                    <div className="field"><label>End</label>
+                      <input type="date" value={form.end} min={form.start||todayStr} onChange={e=>setForm(f=>({...f,end:e.target.value}))}/>
+                    </div>
+                  </div>
+                  <div className="field"><label>Total Hours</label>
+                    <input type="number" min="1" step="0.5" placeholder="e.g. 40" value={form.hours}
+                      onChange={e=>setForm(f=>({...f,hours:e.target.value}))}
+                      onKeyDown={e=>e.key==="Enter"&&addEntry()}/>
+                  </div>
+                  {preview && (
+                    <div className="sans" style={{fontSize:11,color:"#8B7D6B",background:"#F0EBE0",borderRadius:4,padding:"8px 10px"}}>
+                      {preview.wd} weekday{preview.wd!==1?"s":""} · ~{preview.hpd}h/day · split across pay periods
+                    </div>
+                  )}
+                  {formErr && <div className="err">{formErr}</div>}
+                  <button className="btn btn-primary" onClick={addEntry} style={{width:"100%"}}>Add Entry</button>
+                </div>
+              </div>
+
+              {entries.length > 0 && (
+                <div className="panel panel-body">
+                  <div className="panel-title" style={{marginBottom:12}}>Planned Entries</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {entries.map(e => (
+                      <div key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+                        padding:"8px 10px",background:"#F5F0E8",borderRadius:5}}>
+                        <div>
+                          <div className="sans" style={{fontSize:12,fontWeight:500,color:"#1A1714"}}>
+                            {fmtShort(e.start)}{e.start.toDateString()!==e.end.toDateString()?` – ${fmtShort(e.end)}`:""}
+                          </div>
+                          <div className="sans" style={{fontSize:11,color:"#8B7D6B"}}>
+                            {fmtHrs(e.hours)} · {weekdays(e.start,e.end)} weekdays
+                          </div>
+                        </div>
+                        <button onClick={()=>removeEntry(e.id)}
+                          style={{background:"none",border:"none",color:"#B0A090",cursor:"pointer",fontSize:20,lineHeight:1,padding:"0 4px"}}
+                          onMouseEnter={ev=>ev.target.style.color="#CC4A1A"}
+                          onMouseLeave={ev=>ev.target.style.color="#B0A090"}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: table */}
+            <div className="panel" style={{overflow:"hidden"}}>
+              <div style={{padding:"14px 20px",borderBottom:"1px solid #E8E0D0"}}>
+                <span className="panel-title">Pay Period Detail</span>
+              </div>
+              <div style={{overflowY:"auto",maxHeight:520}}>
+                <table style={{width:"100%",borderCollapse:"collapse"}}>
+                  <thead>
+                    <tr style={{position:"sticky",top:0,background:"#F5F0E8",zIndex:1}}>
+                      {["Posts On","Accrued","Used","Balance"].map(h => (
+                        <th key={h} style={{padding:"10px 16px",textAlign:h==="Posts On"?"left":"right",
+                          fontFamily:"'Instrument Sans',sans-serif",fontSize:10,fontWeight:600,
+                          letterSpacing:"0.08em",textTransform:"uppercase",color:"#8B7D6B",
+                          borderBottom:"1px solid #D8D0C0",whiteSpace:"nowrap"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tablePeriods.map(p => (
+                      <tr key={p.i} className="trow" style={{borderBottom:"1px solid #EDE8DC"}}>
+                        <td style={{padding:"9px 16px",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#4A3F30",whiteSpace:"nowrap"}}>
+                          {fmtDate(p.date)}
+                          {p.used>0 && <span style={{marginLeft:6,fontSize:9,color:"#8B6F47",background:"#EDE0CC",
+                            borderRadius:3,padding:"1px 5px",fontWeight:600,letterSpacing:"0.05em"}}>TIME OFF</span>}
+                        </td>
+                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#6B8B6B"}}>
+                          +{fmtHrs(p.accrued)}</td>
+                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,
+                          color:p.used>0?"#8B6F47":"#C8BFA8"}}>{p.used>0?`−${fmtHrs(p.used)}`:"—"}</td>
+                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:13,
+                          fontWeight:600,color:p.balance<0?"#CC4A1A":"#1A1714"}}>{fmtHrs(p.balance)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {hasNextYear && (
+                <div style={{padding:"12px 20px",borderTop:"1px solid #E8E0D0",textAlign:"center"}}>
+                  <button className="btn btn-secondary" onClick={()=>setTableMaxYear(nextTableYear)}
+                    style={{fontSize:11,padding:"7px 20px"}}>
+                    Show {nextTableYear} ›
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </>)}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
