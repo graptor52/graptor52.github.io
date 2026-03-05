@@ -698,28 +698,25 @@ function App() {
                 const nextPost = payDates.find(pd=>floorDay(pd)>floorDay(new Date()));
                 const daysToPost = nextPost ? Math.round((floorDay(nextPost).getTime()-todayMs)/(1000*60*60*24)) : null;
                 return (
-                  <div className="panel panel-body" style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:0}}>
-                    <div className="panel-title" style={{marginBottom:12}}>Next Holiday</div>
-                    <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:4}}>
-                      <div style={{fontSize:22,lineHeight:1.2}}>{nextHoliday.name}</div>
+                  <div className="panel panel-body" style={{flex:1,display:"flex",flexDirection:"row",alignItems:"flex-end",justifyContent:"space-between",gap:24}}>
+                    <div>
+                      <div className="panel-title" style={{marginBottom:10}}>Next Holiday</div>
+                      <div style={{fontSize:22,lineHeight:1.2,marginBottom:4}}>{nextHoliday.name}</div>
+                      <div className="sans" style={{fontSize:13,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextHoliday.date)}</div>
+                      <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600}}>
+                        {daysUntil===0?"today":daysUntil===1?"tomorrow":`in ${daysUntil} days`}
+                      </div>
                     </div>
-                    <div className="sans" style={{fontSize:13,color:"#8B7D6B",marginBottom:4}}>{fmtDate(nextHoliday.date)}</div>
-                    <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600,marginBottom:20}}>
-                      {daysUntil===0?"today":daysUntil===1?"tomorrow":`in ${daysUntil} days`}
-                    </div>
-                    <div style={{height:1,background:"#E8E0D0",marginBottom:16}}/>
-                    <div className="panel-title" style={{marginBottom:10}}>Next Accrual</div>
-                    {nextPost?(
-                      <>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-                          <div style={{fontSize:22,lineHeight:1.2}}>{fmtHrs(+settings.accrual_rate)}</div>
-                          <div className="sans" style={{fontSize:11,color:"#8B7D6B"}}>{fmtDate(nextPost)}</div>
-                        </div>
-                        <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600,marginTop:4}}>
+                    {nextPost&&(
+                      <div style={{textAlign:"right"}}>
+                        <div className="panel-title" style={{marginBottom:10}}>Next Accrual</div>
+                        <div style={{fontSize:22,lineHeight:1.2,marginBottom:4}}>{fmtHrs(+settings.accrual_rate)}</div>
+                        <div className="sans" style={{fontSize:13,color:"#8B7D6B",marginBottom:3}}>{fmtDate(nextPost)}</div>
+                        <div className="sans" style={{fontSize:12,color:"#C8A96E",fontWeight:600}}>
                           {daysToPost===0?"posts today":daysToPost===1?"posts tomorrow":`posts in ${daysToPost} days`}
                         </div>
-                      </>
-                    ):<div className="sans" style={{fontSize:12,color:"#8B7D6B"}}>No upcoming postings</div>}
+                      </div>
+                    )}
                   </div>
                 );
               })()}
