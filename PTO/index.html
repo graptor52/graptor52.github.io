@@ -279,15 +279,31 @@
       const chartMax = Math.max(...periods.map(p => p.balance), initBal) * 1.15 || 100;
       const chartMin = Math.min(0, ...periods.map(p => p.balance));
       const chartRange = chartMax - chartMin || 1;
-      const W = 560, H = 110;
-      const toX = i => (i / (periods.length - 1 || 1)) * W;
-      const toY = v => H - ((v - chartMin) / chartRange) * H;
+      const PAD_L = 8, PAD_R = 52, PAD_T = 6, PAD_B = 28;
+      const W = 580, H = 116;
+      const IW = W - PAD_L - PAD_R;
+      const IH = H - PAD_T;
+      const toX = i => PAD_L + (i / (periods.length - 1 || 1)) * IW;
+      const toY = v => PAD_T + IH - ((v - chartMin) / chartRange) * IH;
       const linePath = periods.map((p, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
-      const fillPath = linePath + ` L${W},${toY(0)} L0,${toY(0)} Z`;
+      const fillPath = periods.length > 1 ? linePath + ` L${toX(periods.length-1)},${toY(0)} L${toX(0)},${toY(0)} Z` : "";
+
+      const [hoveredDot, setHoveredDot] = useState(null);
 
       const monthLabels = useMemo(() => {
-        const labels = []; let last = -1;
-        periods.forEach((p, i) => { const m = p.date.getMonth(); if (m !== last) { last = m; labels.push({ i, label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) }); } });
+        if (periods.length < 2) return [];
+        const labels = [];
+        const step = Math.max(1, Math.floor(periods.length / 7));
+        const seen = new Set();
+        periods.forEach((p, i) => {
+          if (i % step === 0 || i === periods.length - 1) {
+            const key = p.date.getFullYear() + "-" + p.date.getMonth();
+            if (!seen.has(key)) {
+              seen.add(key);
+              labels.push({ i, x: toX(i), label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" }) });
+            }
+          }
+        });
         return labels;
       }, [periods]);
 
@@ -356,24 +372,73 @@
               </div>
 
               {/* Chart */}
-              <div className="panel" style={{ marginBottom: "32px", padding: "24px 24px 16px" }}>
+              <div className="panel" style={{ marginBottom: "32px", padding: "24px 24px 8px", position: "relative" }}>
                 <div className="panel-title">Balance Over Time</div>
-                <svg width="100%" viewBox={`0 0 ${W} ${H+24}`} style={{ overflow: "visible", display: "block" }}>
+                <svg width="100%" viewBox={`0 0 ${W} ${H + PAD_B}`} style={{ display: "block", overflow: "visible" }}>
                   <defs>
                     <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.18" />
                       <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.02" />
                     </linearGradient>
+                    <clipPath id="chartClip">
+                      <rect x={PAD_L} y={PAD_T} width={IW} height={IH} />
+                    </clipPath>
                   </defs>
-                  {[0.25,0.5,0.75,1].map(f => { const v = chartMin + chartRange*f; return <g key={f}>
-                    <line x1={0} x2={W} y1={toY(v)} y2={toY(v)} stroke="#E8E0D0" strokeWidth="1" />
-                    <text x={W+8} y={toY(v)+4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans">{Math.round(v)}h</text>
-                  </g>; })}
-                  {chartMin < 0 && <line x1={0} x2={W} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />}
-                  <path d={fillPath} fill="url(#fillGrad)" />
-                  <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                  {periods.filter(p => p.used > 0).map(p => <circle key={p.i} cx={toX(p.i)} cy={toY(p.balance)} r="4" fill="#8B6F47" stroke="#F5F0E8" strokeWidth="2" />)}
-                  {monthLabels.map(l => <text key={l.i} x={toX(l.i)} y={H+20} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>)}
+                  {/* Grid lines + Y labels (contained, no spillover) */}
+                  {[0.25,0.5,0.75,1].map(f => {
+                    const v = chartMin + chartRange * f;
+                    const y = toY(v);
+                    return <g key={f}>
+                      <line x1={PAD_L} x2={PAD_L + IW} y1={y} y2={y} stroke="#E8E0D0" strokeWidth="1" />
+                      <text x={PAD_L + IW + 6} y={y + 3.5} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" dominantBaseline="middle" textAnchor="start">{Math.round(v)}h</text>
+                    </g>;
+                  })}
+                  {chartMin < 0 && <line x1={PAD_L} x2={PAD_L+IW} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />}
+                  {/* Fill + line clipped to chart area */}
+                  <g clipPath="url(#chartClip)">
+                    {fillPath && <path d={fillPath} fill="url(#fillGrad)" />}
+                    <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                  </g>
+                  {/* Dots on every period */}
+                  {periods.map(p => {
+                    const cx = toX(p.i), cy = toY(p.balance);
+                    const isHov = hoveredDot === p.i;
+                    const hasUsed = p.used > 0;
+                    return <circle
+                      key={p.i} cx={cx} cy={cy}
+                      r={isHov ? 5 : hasUsed ? 4 : 3}
+                      fill={hasUsed ? "#CC4A1A" : "#8B6F47"}
+                      stroke="#FFFDF8" strokeWidth={isHov ? 2 : 1.5}
+                      style={{ cursor: "pointer", transition: "r 0.1s" }}
+                      onMouseEnter={() => setHoveredDot(p.i)}
+                      onMouseLeave={() => setHoveredDot(null)}
+                    />;
+                  })}
+                  {/* X-axis month labels — evenly spaced, no clipping */}
+                  {monthLabels.map(l => (
+                    <text key={l.i} x={Math.max(PAD_L + 12, Math.min(PAD_L + IW - 12, l.x))} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
+                  ))}
+                  {/* Tooltip */}
+                  {hoveredDot !== null && (() => {
+                    const p = periods[hoveredDot];
+                    if (!p) return null;
+                    const cx = toX(p.i), cy = toY(p.balance);
+                    const lines = [fmtDate(p.date), fmtHours(p.balance)];
+                    if (p.used > 0) lines.push(`−${fmtHours(p.used)} used`);
+                    const TW = 118, TH = lines.length * 16 + 10;
+                    const tx = cx + TW + 12 > PAD_L + IW ? cx - TW - 8 : cx + 8;
+                    const ty = Math.max(PAD_T, Math.min(cy - TH / 2, H - TH));
+                    return <g pointerEvents="none">
+                      <rect x={tx} y={ty} width={TW} height={TH} rx="4" fill="#1A1714" opacity="0.88" />
+                      {lines.map((line, li) => (
+                        <text key={li} x={tx + 8} y={ty + 14 + li * 16}
+                          fill={li === 2 ? "#FF9070" : li === 1 ? "#C8A96E" : "#F5F0E8"}
+                          fontSize="10" fontFamily="Instrument Sans" fontWeight={li === 0 ? "400" : "600"}>
+                          {line}
+                        </text>
+                      ))}
+                    </g>;
+                  })()}
                 </svg>
               </div>
 
