@@ -198,6 +198,7 @@
       const [form, setForm] = useState({ start: "", end: "", hours: "" });
       const [formError, setFormError] = useState("");
       const [monthsToShow, setMonthsToShow] = useState(12);
+      const [chartYear, setChartYear] = useState(new Date().getFullYear());
       const PERIODS = 54;
       const todayStr = toDateStr(new Date());
 
@@ -275,37 +276,42 @@
         });
       }, [visiblePeriods, usageByPeriod, settings]);
 
+      // Chart: only periods within chartYear — must come after periods
+      const chartPeriods = useMemo(() => periods.filter(p => p.date.getFullYear() === chartYear), [periods, chartYear]);
+
       const initBal = settings ? +settings.initial_balance : 0;
-      const chartMax = Math.max(...periods.map(p => p.balance), initBal) * 1.15 || 100;
-      const chartMin = Math.min(0, ...periods.map(p => p.balance));
-      const chartRange = chartMax - chartMin || 1;
+      const chartMax = chartPeriods.length > 0 ? Math.max(...chartPeriods.map(p => p.balance)) * 1.15 : 100;
+      const chartMin = chartPeriods.length > 0 ? Math.min(0, ...chartPeriods.map(p => p.balance)) : 0;
+      const chartRange = (chartMax - chartMin) || 1;
       const PAD_L = 8, PAD_R = 52, PAD_T = 6, PAD_B = 28;
       const W = 580, H = 116;
       const IW = W - PAD_L - PAD_R;
       const IH = H - PAD_T;
-      const toX = i => PAD_L + (i / (periods.length - 1 || 1)) * IW;
+
+      // X axis spans full calendar year regardless of how many periods fall in it
+      const yearStartMs = new Date(chartYear, 0, 1).getTime();
+      const yearEndMs   = new Date(chartYear, 11, 31).getTime();
+      const yearRangeMs = yearEndMs - yearStartMs;
+      const toX = (date) => PAD_L + ((date.getTime() - yearStartMs) / yearRangeMs) * IW;
       const toY = v => PAD_T + IH - ((v - chartMin) / chartRange) * IH;
-      const linePath = periods.map((p, i) => `${i === 0 ? "M" : "L"}${toX(i).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
-      const fillPath = periods.length > 1 ? linePath + ` L${toX(periods.length-1)},${toY(0)} L${toX(0)},${toY(0)} Z` : "";
+
+      const linePath = chartPeriods.map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.date).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
+      const fillPath = chartPeriods.length > 1 ? linePath + ` L${toX(chartPeriods[chartPeriods.length-1].date)},${toY(0)} L${toX(chartPeriods[0].date)},${toY(0)} Z` : "";
 
       const [hoveredDot, setHoveredDot] = useState(null);
 
       const monthLabels = useMemo(() => {
-        if (periods.length < 2) return [];
-        // Pick ~8 evenly spaced indices, place by true x position, no pinning
-        const count = Math.min(8, periods.length);
+        // Fixed Jan–Dec labels positioned by calendar date across the year
         const labels = [];
-        for (let k = 0; k < count; k++) {
-          const i = Math.round(k * (periods.length - 1) / (count - 1));
-          const p = periods[i];
+        for (let m = 0; m < 12; m++) {
+          const d = new Date(chartYear, m, 1);
           labels.push({
-            i,
-            x: toX(i),
-            label: p.date.toLocaleDateString("en-US", { month: "short", year: "2-digit" })
+            x: toX(d),
+            label: d.toLocaleDateString("en-US", { month: "short" })
           });
         }
         return labels;
-      }, [periods]);
+      }, [chartYear]);
 
       // Y-axis: nice multiples of 25
       const yGridLines = useMemo(() => {
@@ -315,6 +321,12 @@
         for (let v = start; v <= chartMax; v += step) lines.push(v);
         return lines;
       }, [chartMin, chartMax]);
+
+      // Years available for navigation
+      const availableYears = useMemo(() => {
+        const ys = new Set(periods.map(p => p.date.getFullYear()));
+        return Array.from(ys).sort();
+      }, [periods]);
 
       const totalPlanned = entries.reduce((s, e) => s + e.hours, 0);
       const finalBal = periods.length > 0 ? periods[periods.length - 1].balance : initBal;
@@ -354,12 +366,7 @@
                   </p>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B" }}>Show</span>
-                    <select value={monthsToShow} onChange={e => setMonthsToShow(+e.target.value)} style={{ width: "auto", padding: "4px 8px" }}>
-                      {[6,12,18,24].map(m => <option key={m} value={m}>{m} months</option>)}
-                    </select>
-                  </div>
+
                   <button className="btn btn-secondary" onClick={() => setShowSettings(true)} style={{ padding: "7px 14px" }}>⚙ Settings</button>
                   <button className="btn btn-secondary" onClick={() => sb.auth.signOut()} style={{ padding: "7px 14px" }}>Sign Out</button>
                 </div>
@@ -374,7 +381,7 @@
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "16px", marginBottom: "32px" }}>
                 {[
                   { label: "Current Balance", value: fmtHours(currentBal), sub: `as of ${fmtDate(currentBalDate)}`, warn: false },
-                  { label: "Projected Balance", value: fmtHours(finalBal), sub: `in ${monthsToShow} months`, warn: finalBal < 0 },
+                  { label: "Projected Balance", value: fmtHours(finalBal), sub: `end of ${availableYears[availableYears.length-1] || chartYear}`, warn: finalBal < 0 },
                   { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
                   { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
                 ].map(s => (
@@ -388,7 +395,18 @@
 
               {/* Chart */}
               <div className="panel" style={{ marginBottom: "32px", padding: "24px 24px 8px", position: "relative" }}>
-                <div className="panel-title">Balance Over Time</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <div className="panel-title" style={{ marginBottom: 0 }}>Balance Over Time</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "'Instrument Sans', sans-serif" }}>
+                    <button onClick={() => { const i = availableYears.indexOf(chartYear); if (i > 0) setChartYear(availableYears[i-1]); }}
+                      disabled={availableYears.indexOf(chartYear) === 0}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#8B7D6B", fontSize: "16px", padding: "0 4px", opacity: availableYears.indexOf(chartYear) === 0 ? 0.3 : 1 }}>‹</button>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4A3F30", minWidth: "36px", textAlign: "center" }}>{chartYear}</span>
+                    <button onClick={() => { const i = availableYears.indexOf(chartYear); if (i < availableYears.length - 1) setChartYear(availableYears[i+1]); }}
+                      disabled={availableYears.indexOf(chartYear) === availableYears.length - 1}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#8B7D6B", fontSize: "16px", padding: "0 4px", opacity: availableYears.indexOf(chartYear) === availableYears.length - 1 ? 0.3 : 1 }}>›</button>
+                  </div>
+                </div>
                 <svg width="100%" viewBox={`0 0 ${W} ${H + PAD_B}`} style={{ display: "block", overflow: "visible" }}>
                   <defs>
                     <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
@@ -413,9 +431,9 @@
                     {fillPath && <path d={fillPath} fill="url(#fillGrad)" />}
                     <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
                   </g>
-                  {/* Dots on every period */}
-                  {periods.map(p => {
-                    const cx = toX(p.i), cy = toY(p.balance);
+                  {/* Dots on every period in this year */}
+                  {chartPeriods.map(p => {
+                    const cx = toX(p.date), cy = toY(p.balance);
                     const isHov = hoveredDot === p.i;
                     const hasUsed = p.used > 0;
                     return <circle
@@ -428,15 +446,15 @@
                       onMouseLeave={() => setHoveredDot(null)}
                     />;
                   })}
-                  {/* X-axis month labels — evenly spaced by index */}
-                  {monthLabels.map(l => (
-                    <text key={l.i} x={l.x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
+                  {/* X-axis: Jan–Dec labels */}
+                  {monthLabels.map((l, mi) => (
+                    <text key={mi} x={l.x} y={H + PAD_B - 4} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
                   ))}
                   {/* Tooltip */}
                   {hoveredDot !== null && (() => {
                     const p = periods[hoveredDot];
                     if (!p) return null;
-                    const cx = toX(p.i), cy = toY(p.balance);
+                    const cx = toX(p.date), cy = toY(p.balance);
                     const lines = [fmtDate(p.date), fmtHours(p.balance)];
                     if (p.used > 0) lines.push(`−${fmtHours(p.used)} used`);
                     const TW = 118, TH = lines.length * 16 + 10;
