@@ -1,45 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vacation Forecast</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #F5F0E8; font-family: 'Instrument Serif', Georgia, serif; color: #1A1714; }
-    ::-webkit-scrollbar { width: 3px; height: 3px; }
-    ::-webkit-scrollbar-thumb { background: #C8BFA8; border-radius: 2px; }
-    input, select {
-      font-family: 'Instrument Sans', sans-serif; font-size: 13px;
-      background: #FFFDF8; border: 1px solid #D8D0C0; border-radius: 4px;
-      padding: 7px 10px; color: #1A1714; outline: none; width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    input:focus, select:focus { border-color: #8B6F47; box-shadow: 0 0 0 2px #8B6F4718; }
-    label { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; display: block; margin-bottom: 4px; }
-    .field { display: flex; flex-direction: column; gap: 2px; }
-    .panel { background: #FFFDF8; border: 1px solid #D8D0C0; border-radius: 8px; }
-    .panel-body { padding: 20px; }
-    .panel-title { font-family: 'Instrument Sans', sans-serif; font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase; color: #8B7D6B; }
-    .btn { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 5px;
-      padding: 9px 16px; cursor: pointer; transition: background 0.15s; }
-    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-primary { background: #8B6F47; color: #F5F0E8; }
-    .btn-primary:hover:not(:disabled) { background: #7A5F38; }
-    .btn-secondary { background: #EDE8DC; color: #4A3F30; border: 1px solid #D8D0C0; }
-    .btn-secondary:hover:not(:disabled) { background: #E0D8CC; }
-    .err { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #CC4A1A; }
-    .ok  { font-family: 'Instrument Sans', sans-serif; font-size: 11px; color: #4A8B6B; }
-    .sans { font-family: 'Instrument Sans', sans-serif; }
-    tr.trow:hover td { background: #EDE8DC; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:#F5F0E8;font-family:'Instrument Serif',Georgia,serif;color:#1A1714}
+    ::-webkit-scrollbar{width:3px;height:3px}
+    ::-webkit-scrollbar-thumb{background:#C8BFA8;border-radius:2px}
+    input,select{font-family:'Instrument Sans',sans-serif;font-size:13px;background:#FFFDF8;
+      border:1px solid #D8D0C0;border-radius:4px;padding:7px 10px;color:#1A1714;outline:none;width:100%;
+      transition:border-color .2s,box-shadow .2s}
+    input:focus,select:focus{border-color:#8B6F47;box-shadow:0 0 0 2px #8B6F4718}
+    label{font-family:'Instrument Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;
+      text-transform:uppercase;color:#8B7D6B;display:block;margin-bottom:4px}
+    .field{display:flex;flex-direction:column;gap:2px}
+    .panel{background:#FFFDF8;border:1px solid #D8D0C0;border-radius:8px}
+    .panel-body{padding:20px}
+    .panel-title{font-family:'Instrument Sans',sans-serif;font-size:10px;font-weight:600;
+      letter-spacing:.1em;text-transform:uppercase;color:#8B7D6B}
+    .btn{font-family:'Instrument Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;
+      text-transform:uppercase;border:none;border-radius:5px;padding:9px 16px;cursor:pointer;transition:background .15s}
+    .btn:disabled{opacity:.35;cursor:not-allowed}
+    .btn-primary{background:#8B6F47;color:#F5F0E8}
+    .btn-primary:hover:not(:disabled){background:#7A5F38}
+    .btn-secondary{background:#EDE8DC;color:#4A3F30;border:1px solid #D8D0C0}
+    .btn-secondary:hover:not(:disabled){background:#E0D8CC}
+    .err{font-family:'Instrument Sans',sans-serif;font-size:11px;color:#CC4A1A}
+    .ok{font-family:'Instrument Sans',sans-serif;font-size:11px;color:#4A8B6B}
+    .sans{font-family:'Instrument Sans',sans-serif}
+    tr.trow:hover td{background:#EDE8DC}
   </style>
 </head>
 <body>
@@ -47,106 +43,391 @@
 <script type="text/babel">
 const { useState, useMemo, useEffect } = React;
 
-// ── Supabase ─────────────────────────────────────────────────────────────────
 const sb = supabase.createClient(
   "https://ivxjtjutarmxolzyluwn.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2eGp0anV0YXJteG9senlsdXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzAwOTcsImV4cCI6MjA4ODI0NjA5N30.GE0wZ5yqt8HejXur0LLWZBtZocy0IZIP7WDlWW_w1uQ"
 );
 
-// ── Pure helpers ──────────────────────────────────────────────────────────────
-const addDays    = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
-const floorDay   = (d)    => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const parseDate  = (s)    => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
-const toISO      = (d)    => d.toISOString().split("T")[0];
-const fmtDate    = (d)    => d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
-const fmtShort   = (d)    => d.toLocaleDateString("en-US", { month:"short", day:"numeric" });
+// ── Date utils ────────────────────────────────────────────────────────────────
+const addDays  = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
+const floorDay = d => new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const parseDate= s => { const [y,m,day]=s.split("-").map(Number); return new Date(y,m-1,day); };
+const toISO    = d => { const r=floorDay(d); return `${r.getFullYear()}-${String(r.getMonth()+1).padStart(2,'0')}-${String(r.getDate()).padStart(2,'0')}`; };
+const sameDay  = (a,b) => a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+const fmtDate  = d => d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const fmtShort = d => d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+const dateKey  = d => toISO(floorDay(d));
 
 function fmtHrs(h) {
-  if (h == null) return "—";
-  const sign = h < 0 ? "-" : "", abs = Math.abs(h);
-  const hrs = Math.floor(abs), mins = Math.round((abs - hrs) * 60);
+  if (h==null) return "—";
+  const sign=h<0?"-":"", abs=Math.abs(h), hrs=Math.floor(abs), mins=Math.round((abs-hrs)*60);
   return mins ? `${sign}${hrs}h ${mins}m` : `${sign}${hrs}h`;
 }
 
-function weekdays(a, b) {
-  let n = 0, d = floorDay(a), e = floorDay(b);
-  while (d <= e) { const w = d.getDay(); if (w && w < 6) n++; d = addDays(d,1); }
+// ── Holiday engine ────────────────────────────────────────────────────────────
+function nthWeekday(year, month, n, dow) {
+  // month: 1-12, dow: 0=Sun..6=Sat, n>0: nth, n=-1: last
+  if (n > 0) {
+    let d = new Date(year, month-1, 1);
+    while (d.getDay() !== dow) d = addDays(d,1);
+    return addDays(d, (n-1)*7);
+  } else {
+    let d = new Date(year, month, 0);
+    while (d.getDay() !== dow) d = addDays(d,-1);
+    return d;
+  }
+}
+
+function getHolidays(year) {
+  const map = new Map();
+  function add(d, name) {
+    const dow = d.getDay();
+    if (dow===6) d = addDays(d,-1);       // Sat -> Fri
+    else if (dow===0) d = addDays(d,1);   // Sun -> Mon
+    map.set(dateKey(d), name);
+    // Friday rule: Thursday of that week also off
+    if (d.getDay()===5) {
+      const thu = addDays(d,-1);
+      if (!map.has(dateKey(thu))) map.set(dateKey(thu), name+" (Thu)");
+    }
+  }
+  // Fixed
+  add(new Date(year,0,1),   "New Year's Day");
+  add(new Date(year,1,12),  "Lincoln's Birthday");
+  add(new Date(year,6,4),   "Independence Day");
+  add(new Date(year,10,11), "Veterans Day");
+  add(new Date(year,11,25), "Christmas");
+  // Floating Mon
+  map.set(dateKey(nthWeekday(year,1,3,1)),  "MLK Day");
+  map.set(dateKey(nthWeekday(year,2,3,1)),  "Presidents Day");
+  map.set(dateKey(nthWeekday(year,5,-1,1)), "Memorial Day");
+  map.set(dateKey(nthWeekday(year,9,1,1)),  "Labor Day");
+  // Native American Day: 4th Friday of Sep -> Thu before also off
+  const nad = nthWeekday(year,9,4,5);
+  map.set(dateKey(nad), "Native American Day");
+  if (!map.has(dateKey(addDays(nad,-1)))) map.set(dateKey(addDays(nad,-1)), "Native American Day (Thu)");
+  // Thanksgiving: 4th Thu of Nov + Day After (Fri)
+  const tg = nthWeekday(year,11,4,4);
+  map.set(dateKey(tg), "Thanksgiving");
+  map.set(dateKey(addDays(tg,1)), "Day After Thanksgiving");
+  return map;
+}
+
+// Build combined holidays map for a range of years
+function buildHolidayMap(fromYear, toYear) {
+  const map = new Map();
+  for (let y=fromYear; y<=toYear; y++) getHolidays(y).forEach((v,k)=>map.set(k,v));
+  return map;
+}
+
+// ── Work day helpers ──────────────────────────────────────────────────────────
+function isWorkDay(d, holidays) {
+  const dow = d.getDay();
+  if (dow===0||dow===5||dow===6) return false; // Sun/Fri/Sat not worked
+  return !holidays.has(dateKey(d));
+}
+
+function countWorkDays(start, end, holidays) {
+  let n=0, d=floorDay(start), e=floorDay(end);
+  while (d<=e) { if (isWorkDay(d,holidays)) n++; d=addDays(d,1); }
   return n;
 }
 
-// Generate pay dates: anchor + every 14 days, N periods total
+// ── Forecast helpers ──────────────────────────────────────────────────────────
 function makePayDates(anchor, n) {
-  return Array.from({length: n}, (_, i) => addDays(anchor, i * 14));
+  return Array.from({length:n}, (_,i) => addDays(anchor, i*14));
 }
 
-// Distribute entry hours across pay periods by weekday overlap
-function distribute(entry, payDates) {
-  const s = floorDay(entry.start), e = floorDay(entry.end);
-  const totalWd = weekdays(s, e);
+function distribute(entry, payDates, holidays) {
+  const s=floorDay(entry.start), e=floorDay(entry.end);
+  const totalWd=countWorkDays(s,e,holidays);
   if (!totalWd) return {};
-  const out = {};
-  payDates.forEach((pd, i) => {
-    const pStart = i === 0 ? addDays(pd, -13) : addDays(payDates[i-1], 1);
-    const os = s > pStart ? s : pStart;
-    const oe = e < pd    ? e : pd;
-    if (os <= oe) {
-      const wd = weekdays(os, oe);
-      if (wd) out[i] = (out[i] || 0) + (wd / totalWd) * entry.hours;
-    }
+  const out={};
+  payDates.forEach((pd,i)=>{
+    const pStart = i===0 ? addDays(pd,-13) : addDays(payDates[i-1],1);
+    const os=s>pStart?s:pStart, oe=e<pd?e:pd;
+    if (os<=oe) { const wd=countWorkDays(os,oe,holidays); if(wd) out[i]=(out[i]||0)+(wd/totalWd)*entry.hours; }
   });
   return out;
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-function AuthScreen() {
-  const [mode, setMode] = useState("login");
-  const [email, setEmail] = useState(""), [pw, setPw] = useState("");
-  const [busy, setBusy] = useState(false), [err, setErr] = useState(""), [msg, setMsg] = useState("");
+// ── Calendar ──────────────────────────────────────────────────────────────────
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-  const go = async () => {
-    setErr(""); setMsg(""); setBusy(true);
-    if (mode === "login") {
-      const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-      if (error) setErr(error.message);
-    } else if (mode === "signup") {
-      const { error } = await sb.auth.signUp({ email, password: pw });
-      if (error) setErr(error.message); else setMsg("Check your email to confirm, then sign in.");
-    } else {
-      const { error } = await sb.auth.resetPasswordForEmail(email);
-      if (error) setErr(error.message); else setMsg("Reset email sent.");
-    }
-    setBusy(false);
+function CalMonth({ year, month, selected, onToggle, holidays, existingKeys }) {
+  const first = new Date(year,month,1);
+  const totalDays = new Date(year,month+1,0).getDate();
+  const startDow  = first.getDay();
+  const today     = floorDay(new Date());
+
+  const cells = [];
+  for (let i=0;i<startDow;i++) cells.push(null);
+  for (let d=1;d<=totalDays;d++) cells.push(new Date(year,month,d));
+
+  return (
+    <div style={{flex:1,minWidth:0}}>
+      <div className="sans" style={{fontWeight:600,fontSize:13,color:"#4A3F30",textAlign:"center",marginBottom:10}}>
+        {MONTHS[month]} {year}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,marginBottom:3}}>
+        {DAYS.map(d=>(
+          <div key={d} className="sans" style={{textAlign:"center",fontSize:9,fontWeight:600,
+            letterSpacing:"0.08em",textTransform:"uppercase",color:"#B0A090",padding:"2px 0"}}>{d}</div>
+        ))}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
+        {cells.map((d,ci)=>{
+          if (!d) return <div key={"b"+ci}/>;
+          const key   = dateKey(d);
+          const dow   = d.getDay();
+          const isSun = dow===0, isFri=dow===5, isSat=dow===6;
+          const holiday = holidays.get(key);
+          const workday = isWorkDay(d, holidays);
+          const isSel   = selected.has(key);
+          const hasEntry= existingKeys.has(key);
+          const isPast  = floorDay(d) < today;
+          const isToday = sameDay(d, today);
+          const canSelect = workday && !isPast;
+
+          let bg="#FFFDF8", color="#4A3F30", border="1px solid transparent", fw=400;
+          if (isSun||isSat)    { color="#D8D0C0"; bg="transparent"; }
+          else if (isFri)      { color="#C8BFA8"; bg="transparent"; }
+          else if (holiday)    { bg="#FFF3EA"; color="#B8651A"; border="1px solid #F0D0B0"; }
+          else if (isPast)     { color="#C8BFA8"; }
+          if (isSel)           { bg="#8B6F47"; color="#FFFDF8"; border="1px solid #7A5F38"; fw=600; }
+          if (hasEntry&&!isSel){ bg="#EDE0CC"; border="1px solid #C8A96E"; }
+          if (isToday&&!isSel) { border="1px solid #8B6F47"; }
+
+          return (
+            <div key={key} title={holiday||""}
+              onClick={()=>canSelect&&onToggle(key,d)}
+              style={{borderRadius:4,padding:"4px 2px",textAlign:"center",background:bg,
+                border,cursor:canSelect?"pointer":"default",opacity:isPast&&!isSel?0.45:1,
+                transition:"background .1s",userSelect:"none"}}>
+              <span className="sans" style={{fontSize:11,fontWeight:fw,color,lineHeight:1.2}}>
+                {d.getDate()}
+              </span>
+              {holiday&&<div style={{width:3,height:3,borderRadius:"50%",background:"#CC7A3A",margin:"1px auto 0"}}/>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CalendarPicker({ onAdd, existingEntries, allHolidays }) {
+  const today = floorDay(new Date());
+  const [calYear,  setCalYear]  = useState(today.getFullYear());
+  const [calMonth, setCalMonth] = useState(today.getMonth());
+  const [selected, setSelected] = useState(new Map());
+  const [override, setOverride] = useState("");
+  const [err,      setErr]      = useState("");
+
+  const month2 = calMonth===11 ? 0      : calMonth+1;
+  const year2  = calMonth===11 ? calYear+1 : calYear;
+
+  // Holidays for visible months
+  const visHolidays = useMemo(()=>{
+    const map=new Map();
+    const years=new Set([calYear, year2]);
+    years.forEach(y=>getHolidays(y).forEach((v,k)=>map.set(k,v)));
+    return map;
+  },[calYear,calMonth]);
+
+  // Existing entry days for highlighting
+  const existingKeys = useMemo(()=>{
+    const s=new Set();
+    existingEntries.forEach(e=>{
+      let d=floorDay(e.start);
+      while(d<=e.end){s.add(dateKey(d));d=addDays(d,1);}
+    });
+    return s;
+  },[existingEntries]);
+
+  const prevMonth=()=>{ if(calMonth===0){setCalMonth(11);setCalYear(y=>y-1);}else setCalMonth(m=>m-1); };
+  const nextMonth=()=>{ if(calMonth===11){setCalMonth(0);setCalYear(y=>y+1);}else setCalMonth(m=>m+1); };
+
+  const toggle=(key,d)=>{ setSelected(prev=>{const n=new Map(prev);n.has(key)?n.delete(key):n.set(key,d);return n;}); setErr(""); };
+  const clear=()=>{ setSelected(new Map()); setOverride(""); setErr(""); };
+
+  const count = selected.size;
+  const defaultHrs = count * 10;
+  const totalHrs   = override!=="" ? parseFloat(override) : defaultHrs;
+
+  const handleAdd=async()=>{
+    setErr("");
+    if (!count) { setErr("Select at least one work day."); return; }
+    if (isNaN(totalHrs)||totalHrs<=0) { setErr("Hours must be a positive number."); return; }
+    const dates = Array.from(selected.values()).sort((a,b)=>a-b);
+    await onAdd({ start:dates[0], end:dates[dates.length-1], hours:totalHrs });
+    clear();
   };
 
-  const sw = m => { setMode(m); setErr(""); setMsg(""); };
+  return (
+    <div>
+      {/* Nav */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+        <button className="btn btn-secondary" onClick={prevMonth} style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>‹</button>
+        <span className="sans" style={{fontSize:12,fontWeight:600,color:"#4A3F30"}}>
+          {MONTHS[calMonth]}{calYear!==year2?` ${calYear}`:""} &ndash; {MONTHS[month2]} {year2}
+        </span>
+        <button className="btn btn-secondary" onClick={nextMonth} style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>›</button>
+      </div>
 
+      {/* Two months */}
+      <div style={{display:"flex",gap:20,marginBottom:14}}>
+        <CalMonth year={calYear} month={calMonth} selected={selected} onToggle={toggle}
+          holidays={visHolidays} existingKeys={existingKeys}/>
+        <div style={{width:1,background:"#E8E0D0",flexShrink:0}}/>
+        <CalMonth year={year2} month={month2} selected={selected} onToggle={toggle}
+          holidays={visHolidays} existingKeys={existingKeys}/>
+      </div>
+
+      {/* Legend */}
+      <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:14}}>
+        {[
+          {bg:"#8B6F47",label:"Selected"},
+          {bg:"#EDE0CC",bd:"1px solid #C8A96E",label:"Existing"},
+          {bg:"#FFF3EA",bd:"1px solid #F0D0B0",dot:true,label:"Holiday"},
+        ].map(l=>(
+          <div key={l.label} style={{display:"flex",alignItems:"center",gap:5}}>
+            <div style={{width:11,height:11,borderRadius:3,background:l.bg,border:l.bd||"none",flexShrink:0,position:"relative"}}>
+              {l.dot&&<div style={{width:3,height:3,borderRadius:"50%",background:"#CC7A3A",position:"absolute",bottom:1,left:"50%",transform:"translateX(-50%)"}}/>}
+            </div>
+            <span className="sans" style={{fontSize:10,color:"#8B7D6B"}}>{l.label}</span>
+          </div>
+        ))}
+        <span className="sans" style={{fontSize:10,color:"#C8BFA8"}}>Fri / Weekends / Past = not selectable</span>
+      </div>
+
+      {/* Summary */}
+      {count>0&&(
+        <div style={{background:"#F0EBE0",borderRadius:6,padding:"12px 14px",marginBottom:10}}>
+          <div className="sans" style={{fontSize:12,fontWeight:600,color:"#4A3F30",marginBottom:8}}>
+            {count} day{count!==1?"s":""} selected &middot; {fmtHrs(totalHrs)} to deduct
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"flex-end"}}>
+            <div className="field" style={{flex:1}}>
+              <label>Override hours (optional)</label>
+              <input type="number" min="0.5" step="0.5"
+                placeholder={`${defaultHrs}h default (${count} days × 10h)`}
+                value={override} onChange={e=>setOverride(e.target.value)}/>
+            </div>
+            <button className="btn btn-secondary" onClick={clear} style={{padding:"8px 12px",fontSize:11}}>Clear</button>
+          </div>
+        </div>
+      )}
+      {err&&<div className="err" style={{marginBottom:8}}>{err}</div>}
+      <button className="btn btn-primary" style={{width:"100%"}} onClick={handleAdd} disabled={!count}>
+        {count>0?`Add ${count} Day${count!==1?"s":""} to Forecast`:"Select Days to Add"}
+      </button>
+    </div>
+  );
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+function Chart({ periods, chartYear, setChartYear, allYears }) {
+  const [hovered, setHovered] = useState(null);
+  const yp = useMemo(()=>periods.filter(p=>p.date.getFullYear()===chartYear),[periods,chartYear]);
+
+  const PL=10,PR=52,PT=8,PB=32,W=580,H=120,IW=W-PL-PR,IH=H-PT;
+  const ms0=new Date(chartYear,0,1).getTime(), ms1=new Date(chartYear,11,31).getTime();
+  const toX=d=>PL+((d.getTime()-ms0)/(ms1-ms0))*IW;
+  const bals=yp.map(p=>p.balance);
+  const yTop=Math.ceil((bals.length?Math.max(...bals):100)/25)*25;
+  const yBot=Math.floor((bals.length?Math.min(0,...bals):0)/25)*25;
+  const yRng=(yTop-yBot)||25;
+  const toY=v=>PT+IH-((v-yBot)/yRng)*IH;
+  const grid=[]; for(let v=yBot;v<=yTop;v+=25)grid.push(v);
+  const lp=yp.map((p,i)=>`${i===0?"M":"L"}${toX(p.date).toFixed(1)},${toY(p.balance).toFixed(1)}`).join(" ");
+  const fp=yp.length>1?`${lp} L${toX(yp[yp.length-1].date).toFixed(1)},${toY(0).toFixed(1)} L${toX(yp[0].date).toFixed(1)},${toY(0).toFixed(1)} Z`:"";
+  const ml=Array.from({length:12},(_,m)=>({x:toX(new Date(chartYear,m,1)),lb:new Date(chartYear,m,1).toLocaleDateString("en-US",{month:"short"})}));
+  const prev=allYears[allYears.indexOf(chartYear)-1], next=allYears[allYears.indexOf(chartYear)+1];
+  const hov=hovered!=null?periods.find(p=>p.i===hovered):null;
+
+  return (
+    <div className="panel" style={{marginBottom:32}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"18px 20px 0"}}>
+        <span className="panel-title">Balance Over Time</span>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <button onClick={()=>prev&&setChartYear(prev)} disabled={!prev} className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>&#8249;</button>
+          <span className="sans" style={{fontSize:13,fontWeight:600,color:"#4A3F30",minWidth:36,textAlign:"center"}}>{chartYear}</span>
+          <button onClick={()=>next&&setChartYear(next)} disabled={!next} className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>&#8250;</button>
+        </div>
+      </div>
+      <div style={{padding:"12px 20px 16px"}}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H+PB}`} style={{display:"block",overflow:"visible"}}>
+          <defs>
+            <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.16"/>
+              <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.01"/>
+            </linearGradient>
+            <clipPath id="cc"><rect x={PL} y={PT} width={IW} height={IH+2}/></clipPath>
+          </defs>
+          {grid.map(v=>(
+            <g key={v}>
+              <line x1={PL} x2={PL+IW} y1={toY(v)} y2={toY(v)} stroke="#E8E0D0" strokeWidth="1"/>
+              <text x={PL+IW+7} y={toY(v)} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" dominantBaseline="middle" textAnchor="start">{v}h</text>
+            </g>
+          ))}
+          {yBot<0&&<line x1={PL} x2={PL+IW} y1={toY(0)} y2={toY(0)} stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.6"/>}
+          <g clipPath="url(#cc)">
+            {fp&&<path d={fp} fill="url(#fg)"/>}
+            {lp&&<path d={lp} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>}
+          </g>
+          {yp.map(p=>{
+            const cx=toX(p.date),cy=toY(p.balance),ih=hovered===p.i,hu=p.used>0;
+            return <circle key={p.i} cx={cx} cy={cy} r={ih?6:hu?4.5:3.5}
+              fill={hu?"#CC4A1A":"#8B6F47"} stroke="#FFFDF8" strokeWidth={ih?2:1.5} style={{cursor:"pointer"}}
+              onMouseEnter={()=>setHovered(p.i)} onMouseLeave={()=>setHovered(null)}/>;
+          })}
+          {hov&&(()=>{
+            const cx=toX(hov.date),cy=toY(hov.balance),lines=[fmtDate(hov.date),fmtHrs(hov.balance)];
+            if(hov.used>0)lines.push(`\u2212${fmtHrs(hov.used)} used`);
+            const TW=124,TH=lines.length*17+12,tx=cx+TW+14>PL+IW?cx-TW-8:cx+8,ty=Math.max(PT,Math.min(cy-TH/2,H-TH));
+            return <g pointerEvents="none">
+              <rect x={tx} y={ty} width={TW} height={TH} rx="4" fill="#1A1714" opacity="0.88"/>
+              {lines.map((l,li)=><text key={li} x={tx+9} y={ty+14+li*17} fill={li===2?"#FF9070":li===1?"#C8A96E":"#F5F0E8"} fontSize="10" fontFamily="Instrument Sans" fontWeight={li===0?"400":"600"}>{l}</text>)}
+            </g>;
+          })()}
+          {ml.map((l,mi)=><text key={mi} x={l.x} y={H+PB-6} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans" textAnchor="middle">{l.lb}</text>)}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+function AuthScreen() {
+  const [mode,setMode]=useState("login"),[email,setEmail]=useState(""),[pw,setPw]=useState("");
+  const [busy,setBusy]=useState(false),[err,setErr]=useState(""),[msg,setMsg]=useState("");
+  const go=async()=>{
+    setErr("");setMsg("");setBusy(true);
+    if(mode==="login"){const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)setErr(error.message);}
+    else if(mode==="signup"){const{error}=await sb.auth.signUp({email,password:pw});if(error)setErr(error.message);else setMsg("Check your email to confirm, then sign in.");}
+    else{const{error}=await sb.auth.resetPasswordForEmail(email);if(error)setErr(error.message);else setMsg("Reset email sent.");}
+    setBusy(false);
+  };
+  const sw=m=>{setMode(m);setErr("");setMsg("");};
   return (
     <div style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{width:"100%",maxWidth:400,padding:"0 24px"}}>
         <div style={{textAlign:"center",marginBottom:36}}>
           <div style={{height:3,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)",borderRadius:2,marginBottom:28}}/>
           <h1 style={{fontSize:34,fontWeight:400,letterSpacing:"-0.01em"}}>Vacation Forecast</h1>
-          <p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:8}}>
-            {mode==="login"?"Sign in to your account":mode==="signup"?"Create an account":"Reset your password"}
-          </p>
+          <p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:8}}>{mode==="login"?"Sign in to your account":mode==="signup"?"Create an account":"Reset your password"}</p>
         </div>
         <div className="panel panel-body" style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div className="field"><label>Email</label>
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="you@example.com"/>
-          </div>
-          {mode !== "forgot" && <div className="field"><label>Password</label>
-            <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="••••••••"/>
-          </div>}
-          {err && <div className="err">{err}</div>}
-          {msg && <div className="ok">{msg}</div>}
-          <button className="btn btn-primary" onClick={go} disabled={busy} style={{width:"100%"}}>
-            {busy?"Please wait…":mode==="login"?"Sign In":mode==="signup"?"Create Account":"Send Reset Email"}
-          </button>
+          <div className="field"><label>Email</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="you@example.com"/></div>
+          {mode!=="forgot"&&<div className="field"><label>Password</label><input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} placeholder="••••••••"/></div>}
+          {err&&<div className="err">{err}</div>}
+          {msg&&<div className="ok">{msg}</div>}
+          <button className="btn btn-primary" onClick={go} disabled={busy} style={{width:"100%"}}>{busy?"Please wait…":mode==="login"?"Sign In":mode==="signup"?"Create Account":"Send Reset Email"}</button>
           <div className="sans" style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#8B7D6B"}}>
-            {mode==="login"
-              ? <><span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("signup")}>Create account</span>
-                  <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("forgot")}>Forgot password?</span></>
-              : <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("login")}>Back to sign in</span>}
+            {mode==="login"?<><span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("signup")}>Create account</span><span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("forgot")}>Forgot password?</span></>
+            :<span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("login")}>Back to sign in</span>}
           </div>
         </div>
       </div>
@@ -155,46 +436,35 @@ function AuthScreen() {
 }
 
 // ── Settings Modal ────────────────────────────────────────────────────────────
-function SettingsModal({ init, onSave, onClose, busy }) {
-  const [f, setF] = useState({...init});
-  const [err, setErr] = useState("");
-  const set = (k,v) => setF(p=>({...p,[k]:v}));
-
-  const save = async () => {
+function SettingsModal({init,onSave,onClose,busy}) {
+  const [f,setF]=useState({...init}),[err,setErr]=useState("");
+  const set=(k,v)=>setF(p=>({...p,[k]:v}));
+  const save=async()=>{
     setErr("");
-    if (!f.balance_as_of || !f.anchor_date) { setErr("All dates required."); return; }
-    if (!+f.accrual_rate || +f.accrual_rate <= 0) { setErr("Accrual rate must be > 0."); return; }
+    if(!f.balance_as_of||!f.anchor_date){setErr("All dates required.");return;}
+    if(!+f.accrual_rate||+f.accrual_rate<=0){setErr("Accrual rate must be > 0.");return;}
     await onSave(f);
   };
-
   return (
     <div style={{position:"fixed",inset:0,background:"#1A171460",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:24}}>
       <div className="panel panel-body" style={{width:"100%",maxWidth:460}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
           <span className="panel-title">Your Settings</span>
-          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#8B7D6B",lineHeight:1}}>×</button>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",fontSize:22,color:"#8B7D6B",lineHeight:1}}>&#215;</button>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            <div className="field"><label>Balance (hrs)</label>
-              <input type="number" step="0.01" value={f.initial_balance} onChange={e=>set("initial_balance",e.target.value)}/>
-            </div>
-            <div className="field"><label>Balance As Of</label>
-              <input type="date" value={f.balance_as_of} onChange={e=>set("balance_as_of",e.target.value)}/>
-            </div>
-            <div className="field"><label>Accrual / Period (hrs)</label>
-              <input type="number" step="0.01" value={f.accrual_rate} onChange={e=>set("accrual_rate",e.target.value)}/>
-            </div>
-            <div className="field"><label>Cap (0 = none)</label>
-              <input type="number" step="1" min="0" value={f.accrual_cap} onChange={e=>set("accrual_cap",e.target.value)}/>
-            </div>
+            <div className="field"><label>Balance (hrs)</label><input type="number" step="0.01" value={f.initial_balance} onChange={e=>set("initial_balance",e.target.value)}/></div>
+            <div className="field"><label>Balance As Of</label><input type="date" value={f.balance_as_of} onChange={e=>set("balance_as_of",e.target.value)}/></div>
+            <div className="field"><label>Accrual / Period (hrs)</label><input type="number" step="0.01" value={f.accrual_rate} onChange={e=>set("accrual_rate",e.target.value)}/></div>
+            <div className="field"><label>Cap (0 = none)</label><input type="number" step="1" min="0" value={f.accrual_cap} onChange={e=>set("accrual_cap",e.target.value)}/></div>
           </div>
           <div className="field">
             <label>Next Posting Date</label>
             <input type="date" value={f.anchor_date} onChange={e=>set("anchor_date",e.target.value)}/>
             <span className="sans" style={{fontSize:11,color:"#8B7D6B",marginTop:4}}>The next Saturday hours will post, then every 14 days</span>
           </div>
-          {err && <div className="err">{err}</div>}
+          {err&&<div className="err">{err}</div>}
           <div style={{display:"flex",gap:10}}>
             <button className="btn btn-primary" onClick={save} disabled={busy} style={{flex:1}}>{busy?"Saving…":"Save Settings"}</button>
             <button className="btn btn-secondary" onClick={onClose} style={{flex:1}}>Cancel</button>
@@ -205,350 +475,134 @@ function SettingsModal({ init, onSave, onClose, busy }) {
   );
 }
 
-// ── Chart ─────────────────────────────────────────────────────────────────────
-function Chart({ periods, chartYear, setChartYear, allYears }) {
-  const [hovered, setHovered] = useState(null);
-
-  const yearPeriods = useMemo(
-    () => periods.filter(p => p.date.getFullYear() === chartYear),
-    [periods, chartYear]
-  );
-
-  // Chart geometry
-  const PL=10, PR=52, PT=8, PB=32, W=580, H=120;
-  const IW = W - PL - PR, IH = H - PT;
-
-  // X: proportional across Jan 1 – Dec 31 of chartYear
-  const yearMs0 = new Date(chartYear, 0, 1).getTime();
-  const yearMs1 = new Date(chartYear, 11, 31).getTime();
-  const toX = d => PL + ((d.getTime() - yearMs0) / (yearMs1 - yearMs0)) * IW;
-
-  // Y axis: nice multiples of 25 spanning the year's data
-  const balances = yearPeriods.map(p => p.balance);
-  const rawMax = balances.length ? Math.max(...balances) : 100;
-  const rawMin = balances.length ? Math.min(0, ...balances) : 0;
-  const yStep = 25;
-  const yTop  = Math.ceil(rawMax / yStep) * yStep;
-  const yBot  = Math.floor(rawMin / yStep) * yStep;
-  const yRange = yTop - yBot || yStep;
-  const toY = v => PT + IH - ((v - yBot) / yRange) * IH;
-
-  const gridLines = [];
-  for (let v = yBot; v <= yTop; v += yStep) gridLines.push(v);
-
-  // Line + fill paths
-  const linePath = yearPeriods.map((p,i) =>
-    `${i===0?"M":"L"}${toX(p.date).toFixed(1)},${toY(p.balance).toFixed(1)}`
-  ).join(" ");
-  const fillPath = yearPeriods.length > 1
-    ? `${linePath} L${toX(yearPeriods[yearPeriods.length-1].date).toFixed(1)},${toY(0).toFixed(1)} L${toX(yearPeriods[0].date).toFixed(1)},${toY(0).toFixed(1)} Z`
-    : "";
-
-  // Month labels: one per month, positioned by date
-  const monthLabels = Array.from({length:12}, (_,m) => {
-    const d = new Date(chartYear, m, 1);
-    return { x: toX(d), label: d.toLocaleDateString("en-US",{month:"short"}) };
-  });
-
-  const prevYear = allYears[allYears.indexOf(chartYear) - 1];
-  const nextYear = allYears[allYears.indexOf(chartYear) + 1];
-
-  // Tooltip
-  const hov = hovered != null ? periods.find(p => p.i === hovered) : null;
-
-  return (
-    <div className="panel" style={{marginBottom:32}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"18px 20px 0"}}>
-        <span className="panel-title">Balance Over Time</span>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <button onClick={()=>prevYear&&setChartYear(prevYear)} disabled={!prevYear}
-            className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>‹</button>
-          <span className="sans" style={{fontSize:13,fontWeight:600,color:"#4A3F30",minWidth:36,textAlign:"center"}}>{chartYear}</span>
-          <button onClick={()=>nextYear&&setChartYear(nextYear)} disabled={!nextYear}
-            className="btn btn-secondary" style={{padding:"4px 12px",fontSize:16,lineHeight:1}}>›</button>
-        </div>
-      </div>
-      <div style={{padding:"12px 20px 16px"}}>
-        <svg width="100%" viewBox={`0 0 ${W} ${H+PB}`} style={{display:"block",overflow:"visible"}}>
-          <defs>
-            <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8B6F47" stopOpacity="0.16"/>
-              <stop offset="100%" stopColor="#8B6F47" stopOpacity="0.01"/>
-            </linearGradient>
-            <clipPath id="cc">
-              <rect x={PL} y={PT} width={IW} height={IH+2}/>
-            </clipPath>
-          </defs>
-
-          {/* Grid lines + Y labels */}
-          {gridLines.map(v => (
-            <g key={v}>
-              <line x1={PL} x2={PL+IW} y1={toY(v)} y2={toY(v)} stroke="#E8E0D0" strokeWidth="1"/>
-              <text x={PL+IW+7} y={toY(v)} fill="#B0A090" fontSize="9" fontFamily="Instrument Sans"
-                dominantBaseline="middle" textAnchor="start">{v}h</text>
-            </g>
-          ))}
-
-          {/* Zero line if chart goes negative */}
-          {yBot < 0 && (
-            <line x1={PL} x2={PL+IW} y1={toY(0)} y2={toY(0)}
-              stroke="#CC4A1A" strokeWidth="1" strokeDasharray="4 3" opacity="0.6"/>
-          )}
-
-          {/* Fill + line */}
-          <g clipPath="url(#cc)">
-            {fillPath && <path d={fillPath} fill="url(#fg)"/>}
-            {linePath && <path d={linePath} fill="none" stroke="#8B6F47" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>}
-          </g>
-
-          {/* Dots */}
-          {yearPeriods.map(p => {
-            const cx = toX(p.date), cy = toY(p.balance);
-            const isHov = hovered === p.i, hasUse = p.used > 0;
-            return (
-              <circle key={p.i} cx={cx} cy={cy}
-                r={isHov ? 6 : hasUse ? 4.5 : 3.5}
-                fill={hasUse ? "#CC4A1A" : "#8B6F47"}
-                stroke="#FFFDF8" strokeWidth={isHov ? 2 : 1.5}
-                style={{cursor:"pointer"}}
-                onMouseEnter={() => setHovered(p.i)}
-                onMouseLeave={() => setHovered(null)}
-              />
-            );
-          })}
-
-          {/* Tooltip */}
-          {hov && (() => {
-            const cx = toX(hov.date), cy = toY(hov.balance);
-            const lines = [fmtDate(hov.date), fmtHrs(hov.balance)];
-            if (hov.used > 0) lines.push(`−${fmtHrs(hov.used)} used`);
-            const TW = 124, TH = lines.length * 17 + 12;
-            const tx = cx + TW + 14 > PL+IW ? cx - TW - 8 : cx + 8;
-            const ty = Math.max(PT, Math.min(cy - TH/2, H - TH));
-            return (
-              <g pointerEvents="none">
-                <rect x={tx} y={ty} width={TW} height={TH} rx="4" fill="#1A1714" opacity="0.88"/>
-                {lines.map((l,li) => (
-                  <text key={li} x={tx+9} y={ty+14+li*17}
-                    fill={li===2?"#FF9070":li===1?"#C8A96E":"#F5F0E8"}
-                    fontSize="10" fontFamily="Instrument Sans"
-                    fontWeight={li===0?"400":"600"}>{l}</text>
-                ))}
-              </g>
-            );
-          })()}
-
-          {/* X axis month labels */}
-          {monthLabels.map((l,mi) => (
-            <text key={mi} x={l.x} y={H+PB-6} fill="#B0A090" fontSize="9"
-              fontFamily="Instrument Sans" textAnchor="middle">{l.label}</text>
-          ))}
-        </svg>
-      </div>
-    </div>
-  );
-}
-
-// ── Main App ──────────────────────────────────────────────────────────────────
+// ── App ───────────────────────────────────────────────────────────────────────
 function App() {
-  const [session,     setSession]     = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [settings,    setSettings]    = useState(null);
-  const [entries,     setEntries]     = useState([]);
-  const [dataLoading, setDataLoading] = useState(false);
-  const [showSettings,setShowSettings]= useState(false);
-  const [settingsBusy,setSettingsBusy]= useState(false);
-  const [chartYear,   setChartYear]   = useState(new Date().getFullYear());
-  const [tableMaxYear,setTableMaxYear]= useState(new Date().getFullYear());
-  const [form,        setForm]        = useState({start:"",end:"",hours:""});
-  const [formErr,     setFormErr]     = useState("");
+  const [session,      setSession]      = useState(null);
+  const [authLoading,  setAuthLoading]  = useState(true);
+  const [settings,     setSettings]     = useState(null);
+  const [entries,      setEntries]      = useState([]);
+  const [dataLoading,  setDataLoading]  = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsBusy, setSettingsBusy] = useState(false);
+  const [chartYear,    setChartYear]    = useState(new Date().getFullYear());
+  const [tableMaxYear, setTableMaxYear] = useState(new Date().getFullYear());
   const todayStr = toISO(new Date());
 
-  // Auth
-  useEffect(() => {
-    sb.auth.getSession().then(({data}) => { setSession(data.session); setAuthLoading(false); });
-    const { data:{subscription} } = sb.auth.onAuthStateChange((_,s) => setSession(s));
-    return () => subscription.unsubscribe();
-  }, []);
+  useEffect(()=>{
+    sb.auth.getSession().then(({data})=>{setSession(data.session);setAuthLoading(false);});
+    const{data:{subscription}}=sb.auth.onAuthStateChange((_,s)=>setSession(s));
+    return()=>subscription.unsubscribe();
+  },[]);
 
-  useEffect(() => {
-    if (!session) { setSettings(null); setEntries([]); return; }
+  useEffect(()=>{
+    if(!session){setSettings(null);setEntries([]);return;}
     loadData();
-  }, [session]);
+  },[session]);
 
-  const loadData = async () => {
+  const loadData=async()=>{
     setDataLoading(true);
-    const uid = session.user.id;
-    const { data: profile } = await sb.from("users").select("*").eq("id",uid).single();
-    if (profile) {
-      setSettings(profile);
-    } else {
-      const defaults = { accrual_rate:3.08, initial_balance:0, balance_as_of:todayStr, accrual_cap:0, anchor_date:todayStr };
-      setSettings(defaults);
-      setShowSettings(true);
-    }
-    const { data: rows } = await sb.from("entries").select("*").eq("user_id",uid).order("start_date");
-    setEntries((rows||[]).map(r => ({ id:r.id, start:parseDate(r.start_date), end:parseDate(r.end_date), hours:r.hours })));
+    const uid=session.user.id;
+    const{data:profile}=await sb.from("users").select("*").eq("id",uid).single();
+    if(profile){setSettings(profile);}
+    else{setSettings({accrual_rate:3.08,initial_balance:0,balance_as_of:todayStr,accrual_cap:0,anchor_date:todayStr});setShowSettings(true);}
+    const{data:rows}=await sb.from("entries").select("*").eq("user_id",uid).order("start_date");
+    setEntries((rows||[]).map(r=>({id:r.id,start:parseDate(r.start_date),end:parseDate(r.end_date),hours:r.hours})));
     setDataLoading(false);
   };
 
-  const saveSettings = async (f) => {
+  const saveSettings=async f=>{
     setSettingsBusy(true);
-    const payload = { id:session.user.id, accrual_rate:+f.accrual_rate, initial_balance:+f.initial_balance,
-      balance_as_of:f.balance_as_of, accrual_cap:+f.accrual_cap, anchor_date:f.anchor_date };
-    const { error } = await sb.from("users").upsert(payload);
-    if (!error) { setSettings(payload); setShowSettings(false); }
+    const p={id:session.user.id,accrual_rate:+f.accrual_rate,initial_balance:+f.initial_balance,
+      balance_as_of:f.balance_as_of,accrual_cap:+f.accrual_cap,anchor_date:f.anchor_date};
+    const{error}=await sb.from("users").upsert(p);
+    if(!error){setSettings(p);setShowSettings(false);}
     setSettingsBusy(false);
   };
 
-  const addEntry = async () => {
-    setFormErr("");
-    if (!form.start||!form.end||!form.hours) { setFormErr("All fields required."); return; }
-    const s = parseDate(form.start), e = parseDate(form.end);
-    if (e < s) { setFormErr("End must be on or after start."); return; }
-    const h = parseFloat(form.hours);
-    if (isNaN(h)||h<=0) { setFormErr("Hours must be positive."); return; }
-    const { data, error } = await sb.from("entries")
-      .insert({ user_id:session.user.id, start_date:toISO(s), end_date:toISO(e), hours:h })
-      .select().single();
-    if (!error && data) {
-      setEntries(prev => [...prev, { id:data.id, start:s, end:e, hours:h }]);
-      setForm({start:"",end:"",hours:""});
-    }
+  const allHolidays=useMemo(()=>buildHolidayMap(new Date().getFullYear(), new Date().getFullYear()+5),[]);
+
+  const addEntry=async({start,end,hours})=>{
+    const{data,error}=await sb.from("entries").insert({user_id:session.user.id,start_date:toISO(start),end_date:toISO(end),hours}).select().single();
+    if(!error&&data)setEntries(prev=>[...prev,{id:data.id,start,end,hours}]);
   };
 
-  const removeEntry = async (id) => {
+  const removeEntry=async id=>{
     await sb.from("entries").delete().eq("id",id);
-    setEntries(prev => prev.filter(e => e.id !== id));
+    setEntries(prev=>prev.filter(e=>e.id!==id));
   };
 
-  // ── Forecast computation ──────────────────────────────────────────────────
-  // Generate ~5 years of pay dates from anchor
-  const anchorDate = settings ? parseDate(settings.anchor_date) : new Date();
+  const anchorDate=settings?parseDate(settings.anchor_date):new Date();
+  const payDates=useMemo(()=>makePayDates(anchorDate,130),[settings?.anchor_date]);
 
-  const payDates = useMemo(
-    () => makePayDates(anchorDate, 130),
-    [settings?.anchor_date]
-  );
-
-  // Usage distributed across pay periods
-  const usageMap = useMemo(() => {
-    const m = {};
-    entries.forEach(e => {
-      Object.entries(distribute(e, payDates)).forEach(([i,h]) => { m[i] = (m[i]||0) + h; });
-    });
+  const usageMap=useMemo(()=>{
+    const m={};
+    entries.forEach(e=>{Object.entries(distribute(e,payDates,allHolidays)).forEach(([i,h])=>{m[i]=(m[i]||0)+h;});});
     return m;
-  }, [entries, payDates]);
+  },[entries,payDates,allHolidays]);
 
-  // Full period array with running balance
-  const periods = useMemo(() => {
-    if (!settings) return [];
-    let bal = +settings.initial_balance;
-    const rate = +settings.accrual_rate;
-    const cap  = +settings.accrual_cap;
-    // First figure out how many periods elapsed between balance_as_of and anchor
-    // so we start the running balance at the right point.
-    // We treat settings.initial_balance as the balance on settings.balance_as_of.
-    // payDates[0] = anchor (first FUTURE posting date).
-    // Any payDates that fall on or before balance_as_of have already been accounted for in initial_balance,
-    // so we just run forward from there.
-    return payDates.map((pd, i) => {
-      const used = usageMap[i] || 0;
-      bal = bal + rate - used;
-      if (cap > 0) bal = Math.min(bal, cap);
-      return { i, date: pd, accrued: rate, used: Math.round(used*100)/100, balance: Math.round(bal*100)/100 };
+  const periods=useMemo(()=>{
+    if(!settings)return[];
+    let bal=+settings.initial_balance;
+    const rate=+settings.accrual_rate,cap=+settings.accrual_cap;
+    return payDates.map((pd,i)=>{
+      const used=usageMap[i]||0;
+      bal=bal+rate-used;
+      if(cap>0)bal=Math.min(bal,cap);
+      return{i,date:pd,accrued:rate,used:Math.round(used*100)/100,balance:Math.round(bal*100)/100};
     });
-  }, [settings, payDates, usageMap]);
+  },[settings,payDates,usageMap]);
 
-  // All years that have data
-  const allYears = useMemo(() => {
-    const ys = new Set(periods.map(p => p.date.getFullYear()));
-    return Array.from(ys).sort((a,b) => a-b);
-  }, [periods]);
+  const allYears=useMemo(()=>Array.from(new Set(periods.map(p=>p.date.getFullYear()))).sort((a,b)=>a-b),[periods]);
 
-  // Current balance: last period that has already posted (date ≤ today)
-  const today = floorDay(new Date());
-  const postedPeriods = periods.filter(p => floorDay(p.date) <= today);
-  const currentPeriod = postedPeriods[postedPeriods.length - 1];
-  // If no period has posted yet, use the raw initial balance
-  const currentBal  = currentPeriod ? currentPeriod.balance : (settings ? +settings.initial_balance : 0);
-  const currentDate = currentPeriod ? currentPeriod.date    : (settings ? parseDate(settings.balance_as_of) : new Date());
+  const today=floorDay(new Date());
+  const posted=periods.filter(p=>floorDay(p.date)<=today);
+  const curP=posted[posted.length-1];
+  const currentBal=curP?curP.balance:(settings?+settings.initial_balance:0);
+  const currentDate=curP?curP.date:(settings?parseDate(settings.balance_as_of):new Date());
 
-  // Projected: 12 months from today
-  const twelveOut = new Date(); twelveOut.setMonth(twelveOut.getMonth() + 12);
-  const proj12Periods = periods.filter(p => p.date <= twelveOut);
-  const projBal = proj12Periods.length ? proj12Periods[proj12Periods.length-1].balance
-                                       : (settings ? +settings.initial_balance : 0);
+  const t12=new Date();t12.setMonth(t12.getMonth()+12);
+  const p12=periods.filter(p=>p.date<=t12);
+  const projBal=p12.length?p12[p12.length-1].balance:(settings?+settings.initial_balance:0);
 
-  // Totals
-  const totalPlanned = entries.reduce((s,e) => s+e.hours, 0);
-  const negPeriods   = periods.filter(p => p.balance < 0).length;
+  const totalPlanned=entries.reduce((s,e)=>s+e.hours,0);
+  const negPeriods=periods.filter(p=>p.balance<0).length;
+  const tablePeriods=periods.filter(p=>p.date.getFullYear()<=tableMaxYear);
+  const nextTY=tableMaxYear+1;
+  const hasNextY=allYears.includes(nextTY);
 
-  // Table: show periods up through end of tableMaxYear
-  const tablePeriods = periods.filter(p => p.date.getFullYear() <= tableMaxYear);
-  const nextTableYear = tableMaxYear + 1;
-  const hasNextYear   = allYears.includes(nextTableYear);
-
-  // Form preview
-  const preview = (() => {
-    if (!form.start||!form.end||!form.hours) return null;
-    const s = parseDate(form.start), e = parseDate(form.end);
-    const wd = weekdays(s,e); const h = parseFloat(form.hours);
-    return (wd>0&&!isNaN(h)&&h>0) ? {wd, hpd:(h/wd).toFixed(1)} : null;
-  })();
-
-  // ── Render ────────────────────────────────────────────────────────────────
-  if (authLoading) return (
-    <div className="sans" style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center",color:"#8B7D6B"}}>
-      Loading…
-    </div>
-  );
-  if (!session) return <AuthScreen/>;
+  if(authLoading)return<div className="sans" style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center",color:"#8B7D6B"}}>Loading&hellip;</div>;
+  if(!session)return<AuthScreen/>;
 
   return (
     <div style={{minHeight:"100vh",background:"#F5F0E8"}}>
       <div style={{height:4,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)"}}/>
-      {showSettings && settings && (
-        <SettingsModal init={settings} onSave={saveSettings} onClose={()=>setShowSettings(false)} busy={settingsBusy}/>
-      )}
-
+      {showSettings&&settings&&<SettingsModal init={settings} onSave={saveSettings} onClose={()=>setShowSettings(false)} busy={settingsBusy}/>}
       <div style={{maxWidth:1100,margin:"0 auto",padding:"40px 32px"}}>
 
         {/* Header */}
-        <div style={{marginBottom:40,borderBottom:"1px solid #C8BFA8",paddingBottom:24,
-          display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+        <div style={{marginBottom:40,borderBottom:"1px solid #C8BFA8",paddingBottom:24,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
           <div>
             <h1 style={{fontSize:38,fontWeight:400,letterSpacing:"-0.01em",lineHeight:1}}>Vacation Forecast</h1>
-            {settings && <p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:6}}>
-              {settings.accrual_rate}h / bi-weekly · posts every other Saturday
-              {+settings.accrual_cap>0?` · cap ${settings.accrual_cap}h`:""}
-            </p>}
+            {settings&&<p className="sans" style={{fontSize:13,color:"#8B7D6B",marginTop:6}}>{settings.accrual_rate}h / bi-weekly &middot; posts every other Saturday{+settings.accrual_cap>0?` \u00b7 cap ${settings.accrual_cap}h`:""}</p>}
           </div>
           <div style={{display:"flex",gap:10}}>
-            <button className="btn btn-secondary" onClick={()=>setShowSettings(true)} style={{padding:"7px 14px"}}>⚙ Settings</button>
+            <button className="btn btn-secondary" onClick={()=>setShowSettings(true)} style={{padding:"7px 14px"}}>&#9881; Settings</button>
             <button className="btn btn-secondary" onClick={()=>sb.auth.signOut()} style={{padding:"7px 14px"}}>Sign Out</button>
           </div>
         </div>
 
-        {dataLoading ? (
-          <div className="sans" style={{color:"#8B7D6B",fontSize:13}}>Loading your data…</div>
-        ) : !settings ? null : (<>
+        {dataLoading?<div className="sans" style={{color:"#8B7D6B",fontSize:13}}>Loading your data&hellip;</div>:!settings?null:(<>
 
-          {/* Stat cards */}
+          {/* Stats */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:32}}>
             {[
-              { label:"Current Balance",   value:fmtHrs(currentBal),  sub:`as of ${fmtDate(currentDate)}`,  warn:false },
-              { label:"Projected Balance", value:fmtHrs(projBal),     sub:"in 12 months",                   warn:projBal<0 },
-              { label:"Planned Time Off",  value:fmtHrs(totalPlanned),sub:`${entries.length} entr${entries.length===1?"y":"ies"}`, warn:false },
-              { label:"Periods in Deficit",value:negPeriods,          sub:negPeriods>0?"⚠ goes negative":"all clear", warn:negPeriods>0 },
-            ].map(s => (
-              <div key={s.label} style={{
-                background:s.warn?"#FFF0E8":"#FFFDF8",
-                border:`1px solid ${s.warn?"#E8A87C":"#D8D0C0"}`,
-                borderRadius:8, padding:"16px 18px"
-              }}>
-                <div className="sans" style={{fontSize:10,fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",
-                  color:s.warn?"#B05A20":"#8B7D6B",marginBottom:6}}>{s.label}</div>
+              {label:"Current Balance",   value:fmtHrs(currentBal), sub:`as of ${fmtDate(currentDate)}`,warn:false},
+              {label:"Projected Balance", value:fmtHrs(projBal),    sub:"in 12 months",                 warn:projBal<0},
+              {label:"Planned Time Off",  value:fmtHrs(totalPlanned),sub:`${entries.length} entr${entries.length===1?"y":"ies"}`,warn:false},
+              {label:"Periods in Deficit",value:negPeriods,         sub:negPeriods>0?"⚠ goes negative":"all clear",warn:negPeriods>0},
+            ].map(s=>(
+              <div key={s.label} style={{background:s.warn?"#FFF0E8":"#FFFDF8",border:`1px solid ${s.warn?"#E8A87C":"#D8D0C0"}`,borderRadius:8,padding:"16px 18px"}}>
+                <div className="sans" style={{fontSize:10,fontWeight:600,letterSpacing:"0.1em",textTransform:"uppercase",color:s.warn?"#B05A20":"#8B7D6B",marginBottom:6}}>{s.label}</div>
                 <div style={{fontSize:26,color:s.warn?"#B05A20":"#1A1714",lineHeight:1}}>{s.value}</div>
                 <div className="sans" style={{fontSize:11,color:s.warn?"#B05A20":"#A89880",marginTop:4}}>{s.sub}</div>
               </div>
@@ -558,109 +612,69 @@ function App() {
           {/* Chart */}
           <Chart periods={periods} chartYear={chartYear} setChartYear={setChartYear} allYears={allYears}/>
 
-          {/* Bottom grid */}
-          <div style={{display:"grid",gridTemplateColumns:"340px 1fr",gap:24,alignItems:"start"}}>
+          {/* Bottom */}
+          <div style={{display:"grid",gridTemplateColumns:"440px 1fr",gap:24,alignItems:"start"}}>
 
-            {/* Left: add entry + entries list */}
+            {/* Calendar */}
+            <div className="panel panel-body">
+              <div className="panel-title" style={{marginBottom:16}}>Plan Time Off</div>
+              <CalendarPicker onAdd={addEntry} existingEntries={entries} allHolidays={allHolidays}/>
+            </div>
+
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              <div className="panel panel-body">
-                <div className="panel-title" style={{marginBottom:16}}>Add Planned Time Off</div>
-                <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-                    <div className="field"><label>Start</label>
-                      <input type="date" value={form.start} min={todayStr} onChange={e=>setForm(f=>({...f,start:e.target.value}))}/>
-                    </div>
-                    <div className="field"><label>End</label>
-                      <input type="date" value={form.end} min={form.start||todayStr} onChange={e=>setForm(f=>({...f,end:e.target.value}))}/>
-                    </div>
-                  </div>
-                  <div className="field"><label>Total Hours</label>
-                    <input type="number" min="1" step="0.5" placeholder="e.g. 40" value={form.hours}
-                      onChange={e=>setForm(f=>({...f,hours:e.target.value}))}
-                      onKeyDown={e=>e.key==="Enter"&&addEntry()}/>
-                  </div>
-                  {preview && (
-                    <div className="sans" style={{fontSize:11,color:"#8B7D6B",background:"#F0EBE0",borderRadius:4,padding:"8px 10px"}}>
-                      {preview.wd} weekday{preview.wd!==1?"s":""} · ~{preview.hpd}h/day · split across pay periods
-                    </div>
-                  )}
-                  {formErr && <div className="err">{formErr}</div>}
-                  <button className="btn btn-primary" onClick={addEntry} style={{width:"100%"}}>Add Entry</button>
-                </div>
-              </div>
 
-              {entries.length > 0 && (
+              {/* Entries */}
+              {entries.length>0&&(
                 <div className="panel panel-body">
                   <div className="panel-title" style={{marginBottom:12}}>Planned Entries</div>
                   <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    {entries.map(e => (
-                      <div key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",
-                        padding:"8px 10px",background:"#F5F0E8",borderRadius:5}}>
+                    {entries.map(e=>(
+                      <div key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 10px",background:"#F5F0E8",borderRadius:5}}>
                         <div>
-                          <div className="sans" style={{fontSize:12,fontWeight:500,color:"#1A1714"}}>
-                            {fmtShort(e.start)}{e.start.toDateString()!==e.end.toDateString()?` – ${fmtShort(e.end)}`:""}
-                          </div>
-                          <div className="sans" style={{fontSize:11,color:"#8B7D6B"}}>
-                            {fmtHrs(e.hours)} · {weekdays(e.start,e.end)} weekdays
-                          </div>
+                          <div className="sans" style={{fontSize:12,fontWeight:500,color:"#1A1714"}}>{fmtShort(e.start)}{e.start.toDateString()!==e.end.toDateString()?` \u2013 ${fmtShort(e.end)}`:""}</div>
+                          <div className="sans" style={{fontSize:11,color:"#8B7D6B"}}>{fmtHrs(e.hours)} &middot; {countWorkDays(e.start,e.end,allHolidays)} work days</div>
                         </div>
-                        <button onClick={()=>removeEntry(e.id)}
-                          style={{background:"none",border:"none",color:"#B0A090",cursor:"pointer",fontSize:20,lineHeight:1,padding:"0 4px"}}
-                          onMouseEnter={ev=>ev.target.style.color="#CC4A1A"}
-                          onMouseLeave={ev=>ev.target.style.color="#B0A090"}>×</button>
+                        <button onClick={()=>removeEntry(e.id)} style={{background:"none",border:"none",color:"#B0A090",cursor:"pointer",fontSize:20,lineHeight:1,padding:"0 4px"}}
+                          onMouseEnter={ev=>ev.target.style.color="#CC4A1A"} onMouseLeave={ev=>ev.target.style.color="#B0A090"}>&#215;</button>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Right: table */}
-            <div className="panel" style={{overflow:"hidden"}}>
-              <div style={{padding:"14px 20px",borderBottom:"1px solid #E8E0D0"}}>
-                <span className="panel-title">Pay Period Detail</span>
-              </div>
-              <div style={{overflowY:"auto",maxHeight:520}}>
-                <table style={{width:"100%",borderCollapse:"collapse"}}>
-                  <thead>
-                    <tr style={{position:"sticky",top:0,background:"#F5F0E8",zIndex:1}}>
-                      {["Posts On","Accrued","Used","Balance"].map(h => (
-                        <th key={h} style={{padding:"10px 16px",textAlign:h==="Posts On"?"left":"right",
-                          fontFamily:"'Instrument Sans',sans-serif",fontSize:10,fontWeight:600,
-                          letterSpacing:"0.08em",textTransform:"uppercase",color:"#8B7D6B",
-                          borderBottom:"1px solid #D8D0C0",whiteSpace:"nowrap"}}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tablePeriods.map(p => (
-                      <tr key={p.i} className="trow" style={{borderBottom:"1px solid #EDE8DC"}}>
-                        <td style={{padding:"9px 16px",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#4A3F30",whiteSpace:"nowrap"}}>
-                          {fmtDate(p.date)}
-                          {p.used>0 && <span style={{marginLeft:6,fontSize:9,color:"#8B6F47",background:"#EDE0CC",
-                            borderRadius:3,padding:"1px 5px",fontWeight:600,letterSpacing:"0.05em"}}>TIME OFF</span>}
-                        </td>
-                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#6B8B6B"}}>
-                          +{fmtHrs(p.accrued)}</td>
-                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,
-                          color:p.used>0?"#8B6F47":"#C8BFA8"}}>{p.used>0?`−${fmtHrs(p.used)}`:"—"}</td>
-                        <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:13,
-                          fontWeight:600,color:p.balance<0?"#CC4A1A":"#1A1714"}}>{fmtHrs(p.balance)}</td>
+              {/* Table */}
+              <div className="panel" style={{overflow:"hidden"}}>
+                <div style={{padding:"14px 20px",borderBottom:"1px solid #E8E0D0"}}><span className="panel-title">Pay Period Detail</span></div>
+                <div style={{overflowY:"auto",maxHeight:460}}>
+                  <table style={{width:"100%",borderCollapse:"collapse"}}>
+                    <thead>
+                      <tr style={{position:"sticky",top:0,background:"#F5F0E8",zIndex:1}}>
+                        {["Posts On","Accrued","Used","Balance"].map(h=>(
+                          <th key={h} style={{padding:"10px 16px",textAlign:h==="Posts On"?"left":"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:10,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:"#8B7D6B",borderBottom:"1px solid #D8D0C0",whiteSpace:"nowrap"}}>{h}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {hasNextYear && (
-                <div style={{padding:"12px 20px",borderTop:"1px solid #E8E0D0",textAlign:"center"}}>
-                  <button className="btn btn-secondary" onClick={()=>setTableMaxYear(nextTableYear)}
-                    style={{fontSize:11,padding:"7px 20px"}}>
-                    Show {nextTableYear} ›
-                  </button>
+                    </thead>
+                    <tbody>
+                      {tablePeriods.map(p=>(
+                        <tr key={p.i} className="trow" style={{borderBottom:"1px solid #EDE8DC"}}>
+                          <td style={{padding:"9px 16px",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#4A3F30",whiteSpace:"nowrap"}}>
+                            {fmtDate(p.date)}{p.used>0&&<span style={{marginLeft:6,fontSize:9,color:"#8B6F47",background:"#EDE0CC",borderRadius:3,padding:"1px 5px",fontWeight:600,letterSpacing:"0.05em"}}>TIME OFF</span>}
+                          </td>
+                          <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:"#6B8B6B"}}>+{fmtHrs(p.accrued)}</td>
+                          <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:12,color:p.used>0?"#8B6F47":"#C8BFA8"}}>{p.used>0?`\u2212${fmtHrs(p.used)}`:"—"}</td>
+                          <td style={{padding:"9px 16px",textAlign:"right",fontFamily:"'Instrument Sans',sans-serif",fontSize:13,fontWeight:600,color:p.balance<0?"#CC4A1A":"#1A1714"}}>{fmtHrs(p.balance)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              )}
+                {hasNextY&&(
+                  <div style={{padding:"12px 20px",borderTop:"1px solid #E8E0D0",textAlign:"center"}}>
+                    <button className="btn btn-secondary" onClick={()=>setTableMaxYear(nextTY)} style={{fontSize:11,padding:"7px 20px"}}>Show {nextTY} &#8250;</button>
+                  </div>
+                )}
+              </div>
             </div>
-
           </div>
         </>)}
       </div>
