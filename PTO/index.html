@@ -428,8 +428,7 @@ function AuthScreen() {
           <button className="btn btn-primary" onClick={go} disabled={busy} style={{width:"100%"}}>{busy?"Please wait…":mode==="login"?"Sign In":mode==="signup"?"Create Account":"Send Reset Email"}</button>
           <div className="sans" style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#8B7D6B"}}>
             {mode==="login"
-              ?<><span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("signup")}>Create account</span>
-                <span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("forgot")}>Forgot password?</span></>
+              ?<span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("signup")}>Create account</span>
               :<span style={{cursor:"pointer",textDecoration:"underline"}} onClick={()=>sw("login")}>Back to sign in</span>}
           </div>
         </div>
