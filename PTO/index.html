@@ -61,7 +61,7 @@
 
     const ACCRUAL_RATE = 3.08;
     const INITIAL_BALANCE = 11.90;
-    const ANCHOR_DATE = new Date(2026, 2, 6);
+    const ANCHOR_DATE = new Date(2026, 2, 14); // Mar 14 — next posting date (every other Saturday)
 
     function addDays(d, n) {
       const r = new Date(d);
@@ -238,7 +238,7 @@
                 <div>
                   <h1 style={{ fontSize: "38px", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.01em" }}>Vacation Forecast</h1>
                   <p style={{ fontFamily: "'Instrument Sans', sans-serif", fontSize: "13px", color: "#8B7D6B", marginTop: "6px" }}>
-                    3.08h / bi-weekly · starting {fmtDate(ANCHOR_DATE)} · {fmtHours(INITIAL_BALANCE)} current balance
+                    3.08h / bi-weekly · posts every other Saturday · {fmtHours(INITIAL_BALANCE)} balance as of Feb 28
                   </p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -253,7 +253,7 @@
             {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
               {[
-                { label: "Current Balance", value: fmtHours(INITIAL_BALANCE), sub: "as of Mar 6", warn: false },
+                { label: "Current Balance", value: fmtHours(INITIAL_BALANCE), sub: "as of Feb 28", warn: false },
                 { label: "Projected Balance", value: fmtHours(finalBal), sub: `in ${monthsToShow} months`, warn: finalBal < 0 },
                 { label: "Planned Time Off", value: fmtHours(totalPlanned), sub: `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`, warn: false },
                 { label: "Periods in Deficit", value: negPeriods, sub: negPeriods > 0 ? "⚠ balance goes negative" : "all clear", warn: negPeriods > 0 },
@@ -361,7 +361,7 @@
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ position: "sticky", top: 0, background: "#F5F0E8", zIndex: 1 }}>
-                        {["Check Date", "Accrued", "Used", "Balance"].map(h => (
+                        {["Posts On", "Accrued", "Used", "Balance"].map(h => (
                           <th key={h} style={{ padding: "10px 16px", textAlign: h === "Check Date" ? "left" : "right", fontFamily: "'Instrument Sans', sans-serif", fontSize: "10px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#8B7D6B", borderBottom: "1px solid #D8D0C0", whiteSpace: "nowrap" }}>{h}</th>
                         ))}
                       </tr>
