@@ -36,6 +36,30 @@
     .ok{font-family:'Instrument Sans',sans-serif;font-size:11px;color:#4A8B6B}
     .sans{font-family:'Instrument Sans',sans-serif}
     tr.trow:hover td{background:#EDE8DC}
+
+    /* ── Responsive ─────────────────────────────── */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+    .bottom-grid{display:grid;grid-template-columns:440px 1fr;gap:24px;align-items:stretch}
+    .right-col{display:flex;flex-direction:column;gap:16px}
+    .cal-two-months{display:flex;gap:20px;margin-bottom:14px}
+    .cal-divider{width:1px;background:#E8E0D0;flex-shrink:0}
+    .hide-mobile{display:block}
+
+    .cal-second-month{display:block}
+    .cal-second-month-divider{display:block}
+    @media(max-width:768px){
+      .cal-second-month{display:none}
+      .cal-second-month-divider{display:none}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .bottom-grid{grid-template-columns:1fr}
+      .cal-two-months{flex-direction:column;gap:16px}
+      .cal-divider{width:100%;height:1px}
+      .panel-body{padding:16px}
+      h1{font-size:28px !important}
+    }
+    @media(max-width:480px){
+      .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    }
   </style>
 </head>
 <body>
@@ -277,12 +301,14 @@ function CalendarPicker({ onAdd, existingEntries, allHolidays }) {
       </div>
 
       {/* Two months */}
-      <div style={{display:"flex",gap:20,marginBottom:14}}>
+      <div className="cal-two-months">
         <CalMonth year={calYear} month={calMonth} selected={selected} onToggle={toggle}
           holidays={visHolidays} existingKeys={existingKeys}/>
-        <div style={{width:1,background:"#E8E0D0",flexShrink:0}}/>
-        <CalMonth year={year2} month={month2} selected={selected} onToggle={toggle}
-          holidays={visHolidays} existingKeys={existingKeys}/>
+        <div className="cal-divider cal-second-month-divider"/>
+        <div className="cal-second-month" style={{flex:1,minWidth:0}}>
+          <CalMonth year={year2} month={month2} selected={selected} onToggle={toggle}
+            holidays={visHolidays} existingKeys={existingKeys}/>
+        </div>
       </div>
 
       {/* Legend */}
@@ -332,7 +358,7 @@ function Chart({ periods, chartYear, setChartYear, allYears }) {
   const [hovered, setHovered] = useState(null);
   const yp = useMemo(()=>periods.filter(p=>p.date.getFullYear()===chartYear),[periods,chartYear]);
 
-  const PL=10,PR=52,PT=8,PB=32,W=580,H=120,IW=W-PL-PR,IH=H-PT;
+  const PL=10,PR=46,PT=8,PB=28,W=520,H=110,IW=W-PL-PR,IH=H-PT;
   const ms0=new Date(chartYear,0,1).getTime(), ms1=new Date(chartYear,11,31).getTime();
   const toX=d=>PL+((d.getTime()-ms0)/(ms1-ms0))*IW;
   const bals=yp.map(p=>p.balance);
@@ -413,7 +439,7 @@ function AuthScreen() {
   const sw=m=>{setMode(m);setErr("");setMsg("");};
   return (
     <div style={{minHeight:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{width:"100%",maxWidth:400,padding:"0 24px"}}>
+      <div style={{width:"100%",maxWidth:400,padding:"0 clamp(16px,5vw,24px)"}}>
         <div style={{textAlign:"center",marginBottom:36}}>
           <div style={{height:3,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)",borderRadius:2,marginBottom:28}}/>
           <h1 style={{fontSize:34,fontWeight:400,letterSpacing:"-0.01em"}}>Vacation Forecast</h1>
@@ -448,7 +474,7 @@ function SettingsModal({init,onSave,onClose,busy}) {
     await onSave(f);
   };
   return (
-    <div style={{position:"fixed",inset:0,background:"#1A171460",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:24}}>
+    <div style={{position:"fixed",inset:0,background:"#1A171460",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:"clamp(12px,4vw,24px)"}}>
       <div className="panel panel-body" style={{width:"100%",maxWidth:460}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
           <span className="panel-title">Your Settings</span>
@@ -664,7 +690,7 @@ function App() {
     <div style={{minHeight:"100vh",background:"#F5F0E8"}}>
       <div style={{height:4,background:"linear-gradient(90deg,#8B6F47,#C8A96E,#8B6F47)"}}/>
       {showSettings&&settings&&<SettingsModal init={settings} onSave={saveSettings} onClose={()=>setShowSettings(false)} busy={settingsBusy}/>}
-      <div style={{maxWidth:1100,margin:"0 auto",padding:"40px 32px"}}>
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"clamp(16px,4vw,40px) clamp(16px,3vw,32px)"}}>
 
         {/* Header */}
         <div style={{marginBottom:40,borderBottom:"1px solid #C8BFA8",paddingBottom:24,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
@@ -681,7 +707,7 @@ function App() {
         {dataLoading?<div className="sans" style={{color:"#8B7D6B",fontSize:13}}>Loading your data&hellip;</div>:!settings?null:(<>
 
           {/* Stats */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:32}}>
+          <div className="stats-grid">
             {[
               {label:"Current Balance",   value:fmtHrs(currentBal), sub:`as of ${fmtDate(currentDate)}`,warn:false},
               {label:"Projected Balance", value:fmtHrs(projBal),    sub:"in 12 months",                 warn:projBal<0},
@@ -700,7 +726,7 @@ function App() {
           <Chart periods={periods} chartYear={chartYear} setChartYear={setChartYear} allYears={allYears}/>
 
           {/* Bottom */}
-          <div style={{display:"grid",gridTemplateColumns:"440px 1fr",gap:24,alignItems:"stretch"}}>
+          <div className="bottom-grid">
 
             {/* Left column: calendar + next holiday */}
             <div style={{display:"flex",flexDirection:"column",gap:16,height:"100%"}}>
@@ -745,7 +771,7 @@ function App() {
               })()}
             </div>
 
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <div className="right-col">
 
               {/* Entries */}
               {entries.length>0&&(
