@@ -798,9 +798,14 @@ function App() {
   },[nightMode]);
 
   useEffect(()=>{
+    // Seed initial session without waiting for an auth event
+    sb.auth.getSession().then(({data})=>{
+      setSession(data.session);
+      setAuthLoading(false);
+    });
     const{data:{subscription}}=sb.auth.onAuthStateChange((event,s)=>{
-      if(event==="PASSWORD_RECOVERY"){setResetMode(true);setSession(s);}
-      else{setSession(s);}
+      if(event==="PASSWORD_RECOVERY"){setResetMode(true);}
+      setSession(s);
       setAuthLoading(false);
     });
     return()=>subscription.unsubscribe();
@@ -813,13 +818,18 @@ function App() {
 
   const loadData=async(session)=>{
     setDataLoading(true);
-    const uid=session.user.id;
-    const{data:profile}=await sb.from("users").select("*").eq("id",uid).single();
-    if(profile){setSettings(profile);}
-    else{setSettings({accrual_rate:3.08,initial_balance:0,balance_as_of:todayStr,accrual_cap:0,anchor_date:todayStr});setShowSettings(true);}
-    const{data:rows}=await sb.from("entries").select("*").eq("user_id",uid).order("start_date");
-    setEntries((rows||[]).map(r=>({id:r.id,start:parseDate(r.start_date),end:parseDate(r.end_date),hours:r.hours,note:r.note||""})));
-    setDataLoading(false);
+    try {
+      const uid=session.user.id;
+      const{data:profile,error:pErr}=await sb.from("users").select("*").eq("id",uid).single();
+      if(profile){setSettings(profile);}
+      else{setSettings({accrual_rate:3.08,initial_balance:0,balance_as_of:todayStr,accrual_cap:0,anchor_date:todayStr});setShowSettings(true);}
+      const{data:rows}=await sb.from("entries").select("*").eq("user_id",uid).order("start_date");
+      setEntries((rows||[]).map(r=>({id:r.id,start:parseDate(r.start_date),end:parseDate(r.end_date),hours:r.hours,note:r.note||""})));
+    } catch(e) {
+      console.error("loadData failed:", e);
+    } finally {
+      setDataLoading(false);
+    }
   };
 
   const saveSettings=async f=>{
@@ -942,7 +952,7 @@ function App() {
       <div style={{width:"100%",height:"1px",background:nightMode?"#1E3A50":"#B8CDD6",marginBottom:40}}/>
       <div className="lined-bg" style={{minHeight:"80vh"}}>
       <div style={{maxWidth:1100,margin:"0 auto",padding:"0 clamp(16px,3vw,32px)"}}>
-        {dataLoading?<div className="sans" style={{color:nightMode?"#7AAEC4":"#6B7D8A",fontSize:13}}>Loading your data&hellip;</div>:!settings?null:(<>
+        {dataLoading?<div className="sans" style={{color:nightMode?"#7AAEC4":"#6B7D8A",fontSize:13}}>Loading your data&hellip;</div>:!settings?<div className="sans" style={{color:nightMode?"#7AAEC4":"#6B7D8A",fontSize:13}}>No settings found — open Settings to get started.</div>:(<>
 
           {/* Stats */}
           <div className="stats-grid">
