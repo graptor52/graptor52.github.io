@@ -798,10 +798,10 @@ function App() {
   },[nightMode]);
 
   useEffect(()=>{
-    sb.auth.getSession().then(({data})=>{setSession(data.session);setAuthLoading(false);});
     const{data:{subscription}}=sb.auth.onAuthStateChange((event,s)=>{
       if(event==="PASSWORD_RECOVERY"){setResetMode(true);setSession(s);}
-      else{setResetMode(false);setSession(s);}
+      else{setSession(s);}
+      setAuthLoading(false);
     });
     return()=>subscription.unsubscribe();
   },[]);
@@ -809,7 +809,7 @@ function App() {
   useEffect(()=>{
     if(!session){setSettings(null);setEntries([]);return;}
     loadData(session);
-  },[session]);
+  },[session?.user?.id]);
 
   const loadData=async(session)=>{
     setDataLoading(true);
