@@ -17,192 +17,141 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
         <style>
-        /* ── Base ── */
         html, body, #map {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
+            width: 100%; height: 100%; padding: 0; margin: 0;
             font-family: 'Open Sans', Arial, sans-serif;
         }
-
-        /* ── SLO County approved palette ──────────────────────────
-           Navy   #01426A  |  Teal  #00B2A9  |  Green  #6CC24A
-           Sand   #B9975B  |  Gray  #888B8D  |  WarmGr #83786F
-        ─────────────────────────────────────────────────────────── */
-
-        /* ── Title card (top-right) ── */
-        .map-title-card {
-            background: #01426A;
-            border-radius: 6px;
-            box-shadow: 0 2px 10px rgba(1,66,106,0.4);
-            padding: 10px 14px;
-            max-width: 290px;
+        /* Disclaimer modal */
+        #disclaimer-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(1,66,106,0.72);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
             font-family: 'Open Sans', Arial, sans-serif;
-            pointer-events: none;
+        }
+        #disclaimer-box {
+            background: #fff; border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(1,66,106,0.45);
+            max-width: 560px; width: 92%; overflow: hidden;
+        }
+        #disclaimer-header {
+            background: #01426A; color: #fff; padding: 16px 22px 14px;
+        }
+        #disclaimer-header .dis-eyebrow {
+            font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.6);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;
+        }
+        #disclaimer-header h2 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; color: #fff; }
+        #disclaimer-body { padding: 18px 22px 8px; font-size: 12.5px; color: #333; line-height: 1.65; }
+        #disclaimer-footer { padding: 14px 22px 18px; text-align: right; }
+        #disclaimer-btn {
+            background: #01426A; color: #fff; border: none; border-radius: 5px;
+            padding: 9px 28px; font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.03em;
+            transition: background 0.15s;
+        }
+        #disclaimer-btn:hover { background: #00B2A9; }
+        /* Title card */
+        .map-title-card {
+            background: #01426A; border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(1,66,106,0.4);
+            padding: 13px 18px; max-width: 360px;
+            font-family: 'Open Sans', Arial, sans-serif; pointer-events: none;
         }
         .map-title-card .tc-sub {
-            font-size: 9px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 0.09em;
-            margin-bottom: 4px;
+            font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6);
+            text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 5px;
         }
-        .map-title-card h2 {
-            margin: 0;
-            font-size: 12.5px;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.35;
-        }
-
-        /* ── Legend (bottom-right) ── */
+        .map-title-card h2 { margin: 0; font-size: 16px; font-weight: 700; color: #fff; line-height: 1.35; }
+        /* Legend */
         .map-legend {
-            background: rgba(255,255,255,0.96);
-            border-radius: 6px;
+            background: rgba(255,255,255,0.97); border-radius: 6px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-            padding: 10px 13px;
-            font-family: 'Open Sans', Arial, sans-serif;
-            min-width: 178px;
+            padding: 13px 16px; font-family: 'Open Sans', Arial, sans-serif; min-width: 210px;
         }
         .map-legend .leg-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: #01426A;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px; font-weight: 700; color: #01426A;
+            margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e0e0e0;
         }
         .leg-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 5px 0;
-            font-size: 10.5px;
-            color: #333;
+            display: flex; align-items: center; gap: 9px; margin: 7px 0;
+            font-size: 12.5px; color: #333; cursor: default;
         }
+        .leg-row.toggleable {
+            cursor: pointer; border-radius: 4px; padding: 2px 4px; margin-left: -4px;
+            transition: background 0.12s;
+        }
+        .leg-row.toggleable:hover { background: rgba(1,66,106,0.07); }
+        .leg-row.layer-off { opacity: 0.42; }
+        .leg-row.layer-off .leg-label { text-decoration: line-through; text-decoration-color: #aaa; }
+        .leg-toggle-icon { font-size: 9px; color: #bbb; margin-left: auto; padding-left: 4px; user-select: none; }
         .leg-swatch-circle {
-            width: 13px;
-            height: 13px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            border: 1.5px solid rgba(255,255,255,0.8);
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+            width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+            border: 1.5px solid rgba(255,255,255,0.8); box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
         }
-        .leg-swatch-fill {
-            width: 16px;
-            height: 11px;
-            border-radius: 2px;
-            flex-shrink: 0;
-            border: 1px solid rgba(0,0,0,0.2);
+        .leg-swatch-fill { width: 18px; height: 12px; border-radius: 2px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.2); }
+        .leg-swatch-dash { width: 20px; height: 0; border-top: 2.5px dashed #01426A; flex-shrink: 0; }
+        .leg-swatch-ring { width: 22px; height: 12px; flex-shrink: 0; border-radius: 2px; border: 2px solid; background: transparent; }
+        .leg-section-divider { border: none; border-top: 1px solid #efefef; margin: 8px 0 6px; }
+        .leg-section-label { font-size: 10px; font-weight: 600; color: #888B8D; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+        /* Popups */
+        .slo-popup { font-family: 'Open Sans', Arial, sans-serif; font-size: 11px; min-width: 210px; max-width: 260px; }
+        .slo-popup .pop-header { background: #01426A; color: #fff; padding: 9px 12px; border-radius: 4px 4px 0 0; }
+        .slo-popup .pop-name { font-size: 13px; font-weight: 700; line-height: 1.25; margin-bottom: 2px; }
+        .slo-popup .pop-sub { font-size: 9.5px; color: rgba(255,255,255,0.65); }
+        .slo-popup .pop-body { padding: 9px 12px; }
+        .slo-popup .pop-row { display: flex; gap: 7px; margin: 4px 0; align-items: flex-start; }
+        .slo-popup .pop-key { color: #888B8D; min-width: 64px; flex-shrink: 0; font-size: 10px; padding-top: 1px; }
+        .slo-popup .pop-val { color: #222; font-size: 10.5px; line-height: 1.4; }
+        .slo-popup .pop-approx { font-size: 9px; color: #888B8D; font-style: italic; margin-top: 2px; }
+        .slo-popup .pop-divider { border: none; border-top: 1px solid #ebebeb; margin: 7px 0; }
+        .slo-popup .proj-label { font-size: 10px; color: #888B8D; margin-bottom: 4px; }
+        .slo-popup .proj-links { display: flex; flex-direction: column; gap: 3px; }
+        .slo-popup .proj-links a, .slo-popup .doc-link {
+            color: #01426A !important; text-decoration: none; font-size: 10.5px; font-weight: 600;
         }
-        .leg-swatch-dash {
-            width: 18px;
-            height: 0;
-            border-top: 2.5px dashed #01426A;
-            flex-shrink: 0;
+        .slo-popup .proj-links a { display: flex; align-items: center; gap: 4px; }
+        .slo-popup .proj-links a::before { content: '\2197'; font-size: 9px; opacity: 0.65; font-weight: 400; }
+        .slo-popup .proj-links a:hover, .slo-popup .doc-link:hover { text-decoration: underline; }
+        .slo-popup .doc-link { display: block; margin-top: 2px; }
+        .leaflet-popup-content-wrapper { padding: 0 !important; border-radius: 6px !important; overflow: hidden; }
+        .leaflet-popup-content { margin: 0 !important; }
+        /* Rainbow attribution hover */
+        @keyframes rainbow-shift {
+            0%   { color: #e74c3c; }
+            15%  { color: #e67e22; }
+            30%  { color: #f1c40f; }
+            45%  { color: #2ecc71; }
+            60%  { color: #3498db; }
+            75%  { color: #9b59b6; }
+            90%  { color: #e91e8c; }
+            100% { color: #e74c3c; }
         }
-
-        /* ── Popup base ── */
-        .slo-popup {
-            font-family: 'Open Sans', Arial, sans-serif;
-            font-size: 11px;
-            min-width: 210px;
-            max-width: 260px;
-        }
-        .slo-popup .pop-header {
-            background: #01426A;
-            color: #fff;
-            padding: 9px 12px;
-            border-radius: 4px 4px 0 0;
-        }
-        .slo-popup .pop-name {
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.25;
-            margin-bottom: 2px;
-        }
-        .slo-popup .pop-sub {
-            font-size: 9.5px;
-            color: rgba(255,255,255,0.65);
-        }
-        .slo-popup .pop-body {
-            padding: 9px 12px;
-        }
-        .slo-popup .pop-row {
-            display: flex;
-            gap: 7px;
-            margin: 4px 0;
-            align-items: flex-start;
-        }
-        .slo-popup .pop-key {
-            color: #888B8D;
-            min-width: 64px;
-            flex-shrink: 0;
-            font-size: 10px;
-            padding-top: 1px;
-        }
-        .slo-popup .pop-val {
-            color: #222;
-            font-size: 10.5px;
-            line-height: 1.4;
-        }
-        .slo-popup .pop-divider {
-            border: none;
-            border-top: 1px solid #ebebeb;
-            margin: 7px 0;
-        }
-        .slo-popup .proj-label {
-            font-size: 10px;
-            color: #888B8D;
-            margin-bottom: 4px;
-        }
-        .slo-popup .proj-links {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-        .slo-popup .proj-links a,
-        .slo-popup .doc-link {
-            color: #01426A !important;
-            text-decoration: none;
-            font-size: 10.5px;
+        .leaflet-control-attribution a[href*="nburgnon"]:hover {
+            animation: rainbow-shift 1.2s linear infinite;
+            text-decoration: none !important;
             font-weight: 600;
-        }
-        .slo-popup .proj-links a {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .slo-popup .proj-links a::before {
-            content: '\2197';  /* ↗ */
-            font-size: 9px;
-            opacity: 0.65;
-            font-weight: 400;
-        }
-        .slo-popup .proj-links a:hover,
-        .slo-popup .doc-link:hover {
-            text-decoration: underline;
-        }
-        .slo-popup .doc-link {
-            display: block;
-            margin-top: 2px;
-        }
-
-        /* Strip leaflet popup chrome padding so header bleeds to edges */
-        .leaflet-popup-content-wrapper {
-            padding: 0 !important;
-            border-radius: 6px !important;
-            overflow: hidden;
-        }
-        .leaflet-popup-content {
-            margin: 0 !important;
         }
         </style>
         <title>Commercial Cannabis Sites — District 5 | County of San Luis Obispo</title>
     </head>
     <body>
+        <!-- Disclaimer modal -->
+        <div id="disclaimer-overlay">
+            <div id="disclaimer-box">
+                <div id="disclaimer-header">
+                    <div class="dis-eyebrow">County of San Luis Obispo &middot; District 5 Cannabis Map</div>
+                    <h2>Data Limitations &amp; Disclaimer</h2>
+                </div>
+                <div id="disclaimer-body">
+                    The information presented on this map is approximate and subject to known limitations. Projects that span multiple APNs may be represented by a single parcel record due to data constraints. Cannabis code enforcement cases have not been included. Records were identified using keyword searches of available application data; as a result, some records may not have been captured due to variations in terminology, typographical errors in project descriptions, or incomplete source data. This data set is considered substantially complete, but it should not be relied upon as a comprehensive record of projects. Addresses are approximate and based on available data.
+                </div>
+                <div id="disclaimer-footer">
+                    <button id="disclaimer-btn" onclick="document.getElementById('disclaimer-overlay').style.display='none';">Continue</button>
+                </div>
+            </div>
+        </div>
+
         <div id="map"></div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
@@ -224,18 +173,10 @@
         <script src="data/CannabisApplicationsDistrict5_3.js"></script>
         <script src="data/ProjectSites_4.js"></script>
         <script>
-
-        /* ─────────────────────────────────────────────────────────
-           Helpers
-        ───────────────────────────────────────────────────────── */
-
-        /* Split a double-newline-delimited string into clean parts */
         function splitMulti(str) {
             if (!str) return [];
             return str.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
         }
-
-        /* Build Option A stacked project links HTML */
         function buildProjectLinks(numbersStr, linksStr) {
             var nums  = splitMulti(numbersStr);
             var links = splitMulti(linksStr);
@@ -250,15 +191,15 @@
             return html;
         }
 
-        /* ─────────────────────────────────────────────────────────
-           Map init
-        ───────────────────────────────────────────────────────── */
+        /* Map — centered on Creston VRL */
         var map = L.map('map', {
             continuousWorld: false,
             worldCopyJump: false,
             zoomControl: false,
             maxZoom: 15,
-            minZoom: 1
+            minZoom: 1,
+            center: [35.5179, -120.5238],
+            zoom: 13
         });
 
         var hash = new L.Hash(map);
@@ -269,7 +210,6 @@
             '<a href="https://qgis.org">QGIS</a> &middot; ' +
             '<a href="https://opendata-slocounty.hub.arcgis.com/">SLO County Open Data</a>'
         );
-
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
 
         function removeEmptyRowsFromPopupContent(content, feature) {
@@ -285,7 +225,6 @@
             }
             return tempDiv.innerHTML;
         }
-
         function addClassToPopupIfMedia(content, popup) {
             var tempDiv = document.createElement('div');
             tempDiv.innerHTML = content;
@@ -297,19 +236,15 @@
                     setTimeout(function() { popup.update(); }, 10);
                 } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
                     var audio = document.createElement('audio');
-                    audio.controls = true;
-                    audio.src = src;
+                    audio.controls = true; audio.src = src;
                     imgTd.parentNode.replaceChild(audio, imgTd);
                     popup._contentNode.classList.add('media');
                     setTimeout(function() { popup.setContent(tempDiv.innerHTML); popup.update(); }, 10);
                 } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
                     var video = document.createElement('video');
-                    video.controls = true;
-                    video.src = src;
-                    video.style.width  = '400px';
-                    video.style.height = '300px';
-                    video.style.maxHeight = '60vh';
-                    video.style.maxWidth  = '60vw';
+                    video.controls = true; video.src = src;
+                    video.style.width = '400px'; video.style.height = '300px';
+                    video.style.maxHeight = '60vh'; video.style.maxWidth = '60vw';
                     imgTd.parentNode.replaceChild(video, imgTd);
                     popup._contentNode.classList.add('media');
                     video.addEventListener('loadedmetadata', function() { popup.update(); });
@@ -322,14 +257,9 @@
             }
         }
 
-        /* ─────────────────────────────────────────────────────────
-           UI Controls
-        ───────────────────────────────────────────────────────── */
-
-        /* Zoom — bottom-left */
+        /* Controls */
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-        /* Title card — top-right */
         var TitleCard = L.Control.extend({
             options: { position: 'topright' },
             onAdd: function() {
@@ -342,329 +272,269 @@
         });
         new TitleCard().addTo(map);
 
-        /* Legend — bottom-right */
+        /* Buffer circles — Creston VRL centroid */
+        var crestonCenter = L.latLng(35.5179, -120.5238);
+        var MILE_M = 1609.34;
+        var bufferConfigs = [
+            { miles: 1, color: '#B9975B', dash: '',         label: '1-Mile Buffer' },
+            { miles: 3, color: '#00B2A9', dash: '6,4',      label: '3-Mile Buffer' },
+            { miles: 5, color: '#01426A', dash: '10,5,2,5', label: '5-Mile Buffer' }
+        ];
+        var bufferLayers = [];
+        bufferConfigs.forEach(function(cfg) {
+            var circle = L.circle(crestonCenter, {
+                radius: cfg.miles * MILE_M,
+                color: cfg.color, weight: 2, dashArray: cfg.dash,
+                fillOpacity: 0.04, fillColor: cfg.color, interactive: false
+            });
+            bufferLayers.push({ layer: circle, cfg: cfg, visible: false });
+        });
+
+        /* Layer visibility state — active sites off by default */
+        var layerState = { activeSites: false, parcels: true, district5: true, crestonVRL: true };
+
         var Legend = L.Control.extend({
             options: { position: 'bottomright' },
             onAdd: function() {
                 var div = L.DomUtil.create('div', 'map-legend');
-                div.innerHTML =
-                    '<div class="leg-title">Legend</div>' +
-                    '<div class="leg-row">' +
-                        '<div class="leg-swatch-circle" style="background:#6CC24A;"></div>' +
-                        'Active Site' +
-                    '</div>' +
-                    '<div class="leg-row">' +
-                        '<div class="leg-swatch-fill" style="background:#00B2A9;opacity:0.85;"></div>' +
-                        'Parcels with applications' +
-                    '</div>' +
-                    '<div class="leg-row">' +
-                        '<div class="leg-swatch-fill" style="background:rgba(136,139,141,0.5);"></div>' +
-                        'District 5 boundary' +
-                    '</div>' +
-                    '<div class="leg-row">' +
-                        '<div class="leg-swatch-dash"></div>' +
-                        'Creston VRL boundary' +
-                    '</div>';
+                div.innerHTML = this._buildHTML();
+                L.DomEvent.disableClickPropagation(div);
+                this._div = div;
                 return div;
+            },
+            _buildHTML: function() {
+                var html = '<div class="leg-title">Legend</div>';
+                html += this._row('activeSites',
+                    '<div class="leg-swatch-circle" style="background:#6CC24A;"></div>',
+                    'Active Sites', layerState.activeSites);
+                html += this._row('parcels',
+                    '<div class="leg-swatch-fill" style="background:#00B2A9;opacity:0.85;"></div>',
+                    'Parcels with applications', layerState.parcels);
+                html += this._row('district5',
+                    '<div class="leg-swatch-fill" style="background:rgba(136,139,141,0.5);"></div>',
+                    'Districts 1&ndash;4', layerState.district5);
+                html += this._row('crestonVRL',
+                    '<div class="leg-swatch-dash"></div>',
+                    'Creston VRL Boundary', layerState.crestonVRL);
+                html += '<hr class="leg-section-divider">';
+                html += '<div class="leg-section-label">VRL Buffers</div>';
+                bufferConfigs.forEach(function(cfg, idx) {
+                    var vis = bufferLayers[idx] ? bufferLayers[idx].visible : false;
+                    html += '<div class="leg-row toggleable' + (vis ? '' : ' layer-off') + '" id="leg-buf-' + idx + '" ' +
+                        'onclick="legendCtrl._toggleBuffer(' + idx + ')">' +
+                        '<div class="leg-swatch-ring" style="border-color:' + cfg.color + ';' +
+                            (cfg.dash ? 'border-style:dashed;' : '') + '"></div>' +
+                        '<span class="leg-label">' + cfg.label + '</span>' +
+                        '<span class="leg-toggle-icon">&#9679;</span>' +
+                        '</div>';
+                });
+                return html;
+            },
+            _row: function(key, swatchHTML, label, on) {
+                return '<div class="leg-row toggleable' + (on ? '' : ' layer-off') + '" ' +
+                    'onclick="legendCtrl._toggle(\'' + key + '\')">' +
+                    swatchHTML +
+                    '<span class="leg-label">' + label + '</span>' +
+                    '<span class="leg-toggle-icon">&#9679;</span>' +
+                    '</div>';
+            },
+            _toggle: function(key) {
+                layerState[key] = !layerState[key];
+                var on = layerState[key];
+                if (key === 'activeSites') {
+                    if (on) { cluster_ProjectSites_4.addTo(map); }
+                    else    { map.removeLayer(cluster_ProjectSites_4); }
+                } else if (key === 'parcels') {
+                    if (on) { map.addLayer(layer_CannabisApplicationsDistrict5_3); }
+                    else    { map.removeLayer(layer_CannabisApplicationsDistrict5_3); }
+                } else if (key === 'district5') {
+                    if (on) { map.addLayer(layer_District5Focus_1); }
+                    else    { map.removeLayer(layer_District5Focus_1); }
+                } else if (key === 'crestonVRL') {
+                    if (on) { map.addLayer(layer_CrestonURLCrestonVRL_2); }
+                    else    { map.removeLayer(layer_CrestonURLCrestonVRL_2); }
+                }
+                this._refresh();
+            },
+            _toggleBuffer: function(idx) {
+                var buf = bufferLayers[idx];
+                buf.visible = !buf.visible;
+                if (buf.visible) { buf.layer.addTo(map); }
+                else             { map.removeLayer(buf.layer); }
+                this._refresh();
+            },
+            _refresh: function() {
+                if (this._div) { this._div.innerHTML = this._buildHTML(); }
             }
         });
-        new Legend().addTo(map);
+        var legendCtrl = new Legend();
+        legendCtrl.addTo(map);
 
-        /* ─────────────────────────────────────────────────────────
-           Bounds helper
-        ───────────────────────────────────────────────────────── */
         var bounds_group = new L.featureGroup([]);
-        function setBounds() {
-            if (bounds_group.getLayers().length) {
-                map.fitBounds(bounds_group.getBounds());
-            }
-            map.setMaxBounds(map.getBounds());
-            map.setMinZoom(map.getZoom());
-        }
 
-        /* ─────────────────────────────────────────────────────────
-           Base tile layer
-        ───────────────────────────────────────────────────────── */
+        /* Base tile */
         map.createPane('pane_OSMStandard_0');
         map.getPane('pane_OSMStandard_0').style.zIndex = 400;
         var layer_OSMStandard_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            pane: 'pane_OSMStandard_0',
-            opacity: 1.0,
+            pane: 'pane_OSMStandard_0', opacity: 1.0,
             attribution: '<a href="https://www.openstreetmap.org/copyright">&copy; OpenStreetMap contributors, CC-BY-SA</a>',
-            minZoom: 1,
-            maxZoom: 15,
-            minNativeZoom: 0,
-            maxNativeZoom: 19
+            minZoom: 1, maxZoom: 15, minNativeZoom: 0, maxNativeZoom: 19
         });
         map.addLayer(layer_OSMStandard_0);
 
-        /* ═══════════════════════════════════════════════════════
-           LAYER 1  District 5 focus boundary
-        ═══════════════════════════════════════════════════════ */
-        function pop_District5Focus_1(feature, layer) { /* no popup */ }
-
+        /* Layer 1 — Districts 1-4 boundary */
+        function pop_District5Focus_1(feature, layer) {}
         function style_District5Focus_1_0() {
             return {
-                pane: 'pane_District5Focus_1',
-                opacity: 1,
-                color: 'rgba(0,0,0,0.5)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 2.0,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(136,139,141,0.5)',
-                interactive: false
+                pane: 'pane_District5Focus_1', opacity: 1,
+                color: 'rgba(0,0,0,0.5)', dashArray: '', lineCap: 'butt', lineJoin: 'miter',
+                weight: 2.0, fill: true, fillOpacity: 1, fillColor: 'rgba(136,139,141,0.5)', interactive: false
             };
         }
         map.createPane('pane_District5Focus_1');
         map.getPane('pane_District5Focus_1').style.zIndex = 401;
         map.getPane('pane_District5Focus_1').style['mix-blend-mode'] = 'normal';
         var layer_District5Focus_1 = new L.geoJson(json_District5Focus_1, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json_District5Focus_1',
-            layerName: 'layer_District5Focus_1',
-            pane: 'pane_District5Focus_1',
-            onEachFeature: pop_District5Focus_1,
-            style: style_District5Focus_1_0
+            attribution: '', interactive: false, dataVar: 'json_District5Focus_1',
+            layerName: 'layer_District5Focus_1', pane: 'pane_District5Focus_1',
+            onEachFeature: pop_District5Focus_1, style: style_District5Focus_1_0
         });
         bounds_group.addLayer(layer_District5Focus_1);
         map.addLayer(layer_District5Focus_1);
 
-        /* ═══════════════════════════════════════════════════════
-           LAYER 2  Creston VRL boundary
-        ═══════════════════════════════════════════════════════ */
-        function pop_CrestonURLCrestonVRL_2(feature, layer) { /* no popup */ }
-
+        /* Layer 2 — Creston VRL */
+        function pop_CrestonURLCrestonVRL_2(feature, layer) {}
         function style_CrestonURLCrestonVRL_2_0() {
             return {
-                pane: 'pane_CrestonURLCrestonVRL_2',
-                opacity: 1,
-                color: 'rgba(1,66,106,1.0)',
-                dashArray: '8.0,4.0',
-                lineCap: 'round',
-                lineJoin: 'round',
-                weight: 2.0,
-                fillOpacity: 0,
-                interactive: false
+                pane: 'pane_CrestonURLCrestonVRL_2', opacity: 1,
+                color: 'rgba(1,66,106,1.0)', dashArray: '8.0,4.0',
+                lineCap: 'round', lineJoin: 'round', weight: 2.0, fillOpacity: 0, interactive: false
             };
         }
         map.createPane('pane_CrestonURLCrestonVRL_2');
         map.getPane('pane_CrestonURLCrestonVRL_2').style.zIndex = 402;
         map.getPane('pane_CrestonURLCrestonVRL_2').style['mix-blend-mode'] = 'normal';
         var layer_CrestonURLCrestonVRL_2 = new L.geoJson(json_CrestonURLCrestonVRL_2, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json_CrestonURLCrestonVRL_2',
-            layerName: 'layer_CrestonURLCrestonVRL_2',
-            pane: 'pane_CrestonURLCrestonVRL_2',
-            onEachFeature: pop_CrestonURLCrestonVRL_2,
-            style: style_CrestonURLCrestonVRL_2_0
+            attribution: '', interactive: false, dataVar: 'json_CrestonURLCrestonVRL_2',
+            layerName: 'layer_CrestonURLCrestonVRL_2', pane: 'pane_CrestonURLCrestonVRL_2',
+            onEachFeature: pop_CrestonURLCrestonVRL_2, style: style_CrestonURLCrestonVRL_2_0
         });
         bounds_group.addLayer(layer_CrestonURLCrestonVRL_2);
         map.addLayer(layer_CrestonURLCrestonVRL_2);
 
-        /* ═══════════════════════════════════════════════════════
-           LAYER 3  Cannabis Applications parcels
-        ═══════════════════════════════════════════════════════ */
+        /* Layer 3 — Cannabis Applications (APN prominent, address below) */
         function pop_CannabisApplicationsDistrict5_3(feature, layer) {
             var p = feature.properties;
-
-            /* "Address (approximate)" is the site address; address_1 is the
-               owner's mailing address — use the former for display            */
             var addrRaw   = (p['Address (approximate)'] || '').trim();
             var addrLines = addrRaw.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
             var addrLine1 = addrLines[0] || 'Unknown address';
             var addrCity  = addrLines.slice(1).join(', ');
-
             var parcel    = (p['Parcel Number'] || '').trim();
-
-            var subParts = [];
-            if (parcel)   subParts.push(parcel);
-            if (addrCity) subParts.push(addrCity);
-
             var projHTML  = buildProjectLinks(p['Project Numbers'], p['Project Links']);
-
             var content =
                 '<div class="slo-popup">' +
                     '<div class="pop-header">' +
-                        '<div class="pop-name">' + addrLine1 + '</div>' +
-                        (subParts.length
-                            ? '<div class="pop-sub">' + subParts.join(' &middot; ') + '</div>'
-                            : '') +
+                        '<div class="pop-name">' + (parcel || 'Unknown APN') + '</div>' +
+                        '<div class="pop-sub">Parcel Number (APN)</div>' +
                     '</div>' +
                     '<div class="pop-body">' +
+                        '<div class="pop-row">' +
+                            '<span class="pop-key">Address</span>' +
+                            '<span class="pop-val">' +
+                                addrLine1 + (addrCity ? '<br>' + addrCity : '') +
+                                '<div class="pop-approx">&#x2248;&thinsp;approximate</div>' +
+                            '</span>' +
+                        '</div>' +
                         projHTML +
                     '</div>' +
                 '</div>';
-
             layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
             layer.bindPopup(content, { maxHeight: 400 });
         }
-
         function style_CannabisApplicationsDistrict5_3_0() {
             return {
-                pane: 'pane_CannabisApplicationsDistrict5_3',
-                opacity: 1,
-                color: 'rgba(136,139,141,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1.0,
-                fill: true,
-                fillOpacity: 0.85,
-                fillColor: '#00B2A9',
-                interactive: true
+                pane: 'pane_CannabisApplicationsDistrict5_3', opacity: 1,
+                color: 'rgba(136,139,141,1.0)', dashArray: '', lineCap: 'butt', lineJoin: 'miter',
+                weight: 1.0, fill: true, fillOpacity: 0.85, fillColor: '#00B2A9', interactive: true
             };
         }
         map.createPane('pane_CannabisApplicationsDistrict5_3');
         map.getPane('pane_CannabisApplicationsDistrict5_3').style.zIndex = 403;
         map.getPane('pane_CannabisApplicationsDistrict5_3').style['mix-blend-mode'] = 'normal';
         var layer_CannabisApplicationsDistrict5_3 = new L.geoJson(json_CannabisApplicationsDistrict5_3, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_CannabisApplicationsDistrict5_3',
-            layerName: 'layer_CannabisApplicationsDistrict5_3',
-            pane: 'pane_CannabisApplicationsDistrict5_3',
-            onEachFeature: pop_CannabisApplicationsDistrict5_3,
-            style: style_CannabisApplicationsDistrict5_3_0
+            attribution: '', interactive: true, dataVar: 'json_CannabisApplicationsDistrict5_3',
+            layerName: 'layer_CannabisApplicationsDistrict5_3', pane: 'pane_CannabisApplicationsDistrict5_3',
+            onEachFeature: pop_CannabisApplicationsDistrict5_3, style: style_CannabisApplicationsDistrict5_3_0
         });
         bounds_group.addLayer(layer_CannabisApplicationsDistrict5_3);
         map.addLayer(layer_CannabisApplicationsDistrict5_3);
 
-        /* ═══════════════════════════════════════════════════════
-           LAYER 4  Commercial / Active project sites
-        ═══════════════════════════════════════════════════════ */
+        /* Layer 4 — Active project sites */
         function pop_ProjectSites_4(feature, layer) {
             var p = feature.properties;
-
             var name      = p['Business Name'] || 'Unknown';
             var addrRaw   = (p['Address'] || '').trim();
             var addrLines = addrRaw.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
             var addrLine1 = addrLines[0] || '';
             var addrCity  = addrLines.slice(1).join(', ');
-
-            /* APN may contain newlines for parcels with multiple APNs */
             var apn = (p['APN(s)'] || '').replace(/\n+/g, ', ');
-
-            /* Operations field uses [bracket] formatting — clean it up */
             var ops = (p['Currently Operational Components of Approval'] || '')
-                        .replace(/\[|\]/g, '')
-                        .replace(/\n+/g, ', ')
-                        .trim();
-
+                        .replace(/\[|\]/g, '').replace(/\n+/g, ', ').trim();
             var dateApproved = p['Date approved for operations'] || '';
-
-            /* doc field is already an <a> tag from the source data */
             var docRaw = p['doc'] || '';
-
             var subParts = [];
             if (addrCity) subParts.push(addrCity);
             if (apn)      subParts.push('APN ' + apn);
-
             var content =
                 '<div class="slo-popup">' +
                     '<div class="pop-header">' +
                         '<div class="pop-name">' + name + '</div>' +
-                        (subParts.length
-                            ? '<div class="pop-sub">' + subParts.join(' &middot; ') + '</div>'
-                            : '') +
+                        (subParts.length ? '<div class="pop-sub">' + subParts.join(' &middot; ') + '</div>' : '') +
                     '</div>' +
                     '<div class="pop-body">' +
-                        (addrLine1
-                            ? '<div class="pop-row">' +
-                                  '<span class="pop-key">Address</span>' +
-                                  '<span class="pop-val">' + addrLine1 + (addrCity ? '<br>' + addrCity : '') + '</span>' +
-                              '</div>'
-                            : '') +
-                        (dateApproved
-                            ? '<div class="pop-row">' +
-                                  '<span class="pop-key">Approved</span>' +
-                                  '<span class="pop-val">' + dateApproved + '</span>' +
-                              '</div>'
-                            : '') +
-                        (ops
-                            ? '<div class="pop-row">' +
-                                  '<span class="pop-key">Operations</span>' +
-                                  '<span class="pop-val">' + ops + '</span>' +
-                              '</div>'
-                            : '') +
-                        (docRaw
-                            ? '<hr class="pop-divider">' +
-                              '<div class="proj-label">Documents</div>' +
-                              docRaw.replace(/<a /g, '<a class="doc-link" target="_blank" ')
-                            : '') +
+                        (addrLine1 ? '<div class="pop-row"><span class="pop-key">Address</span><span class="pop-val">' + addrLine1 + (addrCity ? '<br>' + addrCity : '') + '</span></div>' : '') +
+                        (dateApproved ? '<div class="pop-row"><span class="pop-key">Approved</span><span class="pop-val">' + dateApproved + '</span></div>' : '') +
+                        (ops ? '<div class="pop-row"><span class="pop-key">Operations</span><span class="pop-val">' + ops + '</span></div>' : '') +
+                        (docRaw ? '<hr class="pop-divider"><div class="proj-label">Documents</div>' + docRaw.replace(/<a /g, '<a class="doc-link" target="_blank" ') : '') +
                     '</div>' +
                 '</div>';
-
             layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
             layer.bindPopup(content, { maxHeight: 400 });
         }
-
         function style_ProjectSites_4_0() {
-            return {
-                pane:        'pane_ProjectSites_4',
-                radius:      9,
-                opacity:     1,
-                color:       '#ffffff',
-                weight:      2.5,
-                fill:        true,
-                fillOpacity: 1,
-                fillColor:   '#6CC24A',
-                interactive: true
-            };
+            return { pane: 'pane_ProjectSites_4', radius: 9, opacity: 1, color: '#ffffff', weight: 2.5, fill: true, fillOpacity: 1, fillColor: '#6CC24A', interactive: true };
         }
         map.createPane('pane_ProjectSites_4');
         map.getPane('pane_ProjectSites_4').style.zIndex = 404;
         map.getPane('pane_ProjectSites_4').style['mix-blend-mode'] = 'normal';
         var layer_ProjectSites_4 = new L.geoJson(json_ProjectSites_4, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_ProjectSites_4',
-            layerName: 'layer_ProjectSites_4',
-            pane: 'pane_ProjectSites_4',
+            attribution: '', interactive: true, dataVar: 'json_ProjectSites_4',
+            layerName: 'layer_ProjectSites_4', pane: 'pane_ProjectSites_4',
             onEachFeature: pop_ProjectSites_4,
-            pointToLayer: function(feature, latlng) {
-                return L.circleMarker(latlng, style_ProjectSites_4_0());
-            }
+            pointToLayer: function(feature, latlng) { return L.circleMarker(latlng, style_ProjectSites_4_0()); }
         });
-
-        var cluster_ProjectSites_4 = new L.MarkerClusterGroup({
-            showCoverageOnHover: false,
-            spiderfyDistanceMultiplier: 2
-        });
+        var cluster_ProjectSites_4 = new L.MarkerClusterGroup({ showCoverageOnHover: false, spiderfyDistanceMultiplier: 2 });
         cluster_ProjectSites_4.addLayer(layer_ProjectSites_4);
         bounds_group.addLayer(layer_ProjectSites_4);
-        cluster_ProjectSites_4.addTo(map);
+        /* Active Sites OFF by default — not added to map */
 
-        /* ─────────────────────────────────────────────────────────
-           Zoom-dependent layer visibility
-        ───────────────────────────────────────────────────────── */
+        /* Zoom-dependent district layer */
         function updateZoomLayers() {
             var z = map.getZoom();
-            if (z <= 14 && z >= 2) {
-                map.addLayer(layer_District5Focus_1);
-            } else {
-                map.removeLayer(layer_District5Focus_1);
+            if (layerState.district5) {
+                if (z <= 14 && z >= 2) { map.addLayer(layer_District5Focus_1); }
+                else                   { map.removeLayer(layer_District5Focus_1); }
             }
         }
         map.on('zoomend', updateZoomLayers);
         updateZoomLayers();
 
-        setBounds();
-
-        /* ─────────────────────────────────────────────────────────
-           Business name tooltips on active site markers
-        ───────────────────────────────────────────────────────── */
+        /* Tooltips on active site markers */
         var i = 0;
         layer_ProjectSites_4.eachLayer(function(layer) {
             var bname = layer.feature.properties['Business Name'];
             layer.bindTooltip(
-                bname
-                    ? '<div style="color:#01426A;font-size:10pt;font-weight:700;font-family:\'Open Sans\',Arial,sans-serif;">' + bname + '</div>'
-                    : '',
+                bname ? '<div style="color:#01426A;font-size:10pt;font-weight:700;font-family:\'Open Sans\',Arial,sans-serif;">' + bname + '</div>' : '',
                 { permanent: true, offset: [0, -14], className: 'css_ProjectSites_4' }
             );
             labels.push(layer);
